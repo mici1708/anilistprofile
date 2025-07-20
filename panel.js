@@ -11,10 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       fetch(`${backendURL}/list`, {
         headers: {
-          Authorization: token  // token puro, senza "Bearer "
+          Authorization: `Bearer ${token}` // ✅ CORRETTO
         }
       })
-
       .then(async res => {
         if (!res.ok) {
           const errorText = await res.text();
@@ -27,20 +26,27 @@ document.addEventListener('DOMContentLoaded', () => {
           result.textContent = "Nessun dato disponibile.";
           return;
         }
+
         const user = data.data.Viewer;
         result.innerHTML = `<h2>Lista di ${user.name}</h2>`;
-        user.animeList.lists.forEach(list => {
-          result.innerHTML += `<h3>${list.name}</h3>`;
-          list.entries.forEach(entry => {
-            const anime = entry.media;
-            result.innerHTML += `
-              <div>
-                <img src="${anime.coverImage.medium}" alt="cover di ${anime.title.romaji}" />
-                ${anime.title.english || anime.title.romaji}
-              </div>
-            `;
+
+        // se la tua query nel backend include anche MediaListCollection
+        if (data.data.MediaListCollection?.lists) {
+          data.data.MediaListCollection.lists.forEach(list => {
+            result.innerHTML += `<h3>${list.name}</h3>`;
+            list.entries.forEach(entry => {
+              const anime = entry.media;
+              result.innerHTML += `
+                <div>
+                  <img src="${anime.coverImage.medium}" alt="cover di ${anime.title.romaji}" />
+                  ${anime.title.english || anime.title.romaji}
+                </div>
+              `;
+            });
           });
-        });
+        } else {
+          result.innerHTML += "<p>La lista non è disponibile.</p>";
+        }
       })
       .catch(err => {
         console.error(err);
