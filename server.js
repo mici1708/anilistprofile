@@ -5,37 +5,19 @@ const cors = require('cors');
 
 const app = express();
 
-const allowedOrigins = ['https://mici1708.github.io'];
-
-app.use(cors({
-  origin: function(origin, callback){
-    // permette richieste senza origin (es. Postman)
-    if(!origin) return callback(null, true);
-    if(allowedOrigins.indexOf(origin) === -1){
-      const msg = 'La politica CORS non permette questa origine: ' + origin;
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
-  credentials: true,
-}));
-
+app.use(cors());  // abilita CORS per tutte le rotte
 
 app.get('/test', (req, res) => {
   res.send('Server funzionante!');
 });
 
 app.get('/auth/login', (req, res) => {
-  const url = `https://anilist.co/api/v2/oauth/authorize?client_id=${process.env.CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(process.env.REDIRECT_URI)}`;
+  const url = `https://anilist.co/api/v2/oauth/authorize?client_id=${process.env.CLIENT_ID}&response_type=code&redirect_uri=${process.env.REDIRECT_URI}`;
   res.redirect(url);
 });
 
 app.get('/auth/callback', async (req, res) => {
   const code = req.query.code;
-  if (!code) {
-    return res.status(400).send('Manca il codice di autorizzazione');
-  }
-
   try {
     const response = await axios.post('https://anilist.co/api/v2/oauth/token', {
       grant_type: 'authorization_code',
@@ -44,7 +26,10 @@ app.get('/auth/callback', async (req, res) => {
       redirect_uri: process.env.REDIRECT_URI,
       code,
     });
-    const access_token = response.data.access_token;
+    const { access_token } = response.data;
+    console.log("Token ricevuto:", access_token); // Controlla il token nel log
+
+    // Passa il token come query param al frontend
     res.redirect(`https://mici1708.github.io/anilistprofile/panel.html?token=${access_token}`);
   } catch (error) {
     console.error("Errore login AniList:", error.response?.data || error.message);
@@ -53,8 +38,12 @@ app.get('/auth/callback', async (req, res) => {
 });
 
 app.get('/list', async (req, res) => {
-  const token = req.headers.authorization?.split(' ')[1]; // estrai solo il token, senza 'Bearer'
-  console.log('Token ricevuto:', token);
+  const authHeader = req.headers.authorization || '';
+  if (!authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Token mancante o malformato' });
+  }
+  const token = authHeader.substring(7); // togli "Bearer "
+
   try {
     const response = await axios.post(
       'https://graphql.anilist.co',
@@ -63,6 +52,9 @@ app.get('/list', async (req, res) => {
           query {
             Viewer {
               name
+              mediaListOptions {
+                scoreFormat
+              }
               mediaListCollection(type: ANIME) {
                 lists {
                   name
@@ -77,8 +69,6 @@ app.get('/list', async (req, res) => {
                         medium
                       }
                     }
-                    status
-                    score
                   }
                 }
               }
@@ -90,17 +80,15 @@ app.get('/list', async (req, res) => {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
       }
     );
-
     res.json(response.data);
   } catch (err) {
-    console.error("Errore dettagliato Anilist:", err.response?.data || err.message);
+    console.error("Errore fetch lista:", err.response?.data || err.message);
     res.status(500).json({ error: 'Errore nel recuperare la lista' });
   }
 });
-
 
 app.listen(3000, () => {
   console.log('✅ Server avviato su http://localhost:3000');
