@@ -42,3 +42,19 @@ if (token) {
     window.location.href = `${backendURL}/auth/login`;
   });
 }
+window.addEventListener('message', (event) => {
+  // Controlla che l'origine sia una delle fonti Twitch autorizzate
+  const allowedOrigins = [
+    'https://supervisor.ext-twitch.tv',
+    'https://extension-files.twitch.tv'
+  ];
+
+  if (!allowedOrigins.includes(event.origin)) {
+    console.warn('Messaggio da origine non riconosciuta:', event.origin);
+    return; // Ignora messaggi non autorizzati
+  }
+
+  // Qui puoi processare il messaggio Twitch in sicurezza
+  console.log('Messaggio Twitch ricevuto:', event.data);
+});
+
