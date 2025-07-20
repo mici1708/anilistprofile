@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginBtn = document.getElementById('login');
   const backendURL = "https://anilistprofile.onrender.com";
   const token = new URLSearchParams(window.location.search).get("token");
+  console.log("Token frontend:", token);  // verifica che esista e sia corretto
+
 
   if (token) {
     result.textContent = "Login fatto! Caricamento lista...";
