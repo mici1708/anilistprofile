@@ -30,7 +30,7 @@ app.get('/auth/callback', async (req, res) => {
       redirect_uri: process.env.REDIRECT_URI,
       code,
     });
-    const { access_token } = response.data;
+    const access_token = response.data.access_token;
     res.redirect(`https://mici1708.github.io/anilistprofile/panel.html?token=${access_token}`);
   } catch (error) {
     console.error("Errore login AniList:", error.response?.data || error.message);
