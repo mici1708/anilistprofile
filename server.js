@@ -48,8 +48,19 @@ app.get('/list', async (req, res) => {
           query {
             Viewer {
               name
-              mediaListOptions {
-                // Puoi provare ad adattare la query
+              mediaList(type: ANIME) {
+                media {
+                  id
+                  title {
+                    romaji
+                    english
+                  }
+                  coverImage {
+                    medium
+                  }
+                }
+                status
+                score
               }
             }
           }
@@ -67,6 +78,7 @@ app.get('/list', async (req, res) => {
     res.status(500).json({ error: 'Errore nel recuperare la lista' });
   }
 });
+
 
 app.listen(3000, () => {
   console.log('✅ Server avviato su http://localhost:3000');
