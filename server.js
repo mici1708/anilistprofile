@@ -41,6 +41,10 @@ app.get('/auth/callback', async (req, res) => {
 app.get('/list', async (req, res) => {
   const token = req.headers.authorization;
   console.log("Token ricevuto:", token);
+  
+  if (!token) {
+    return res.status(401).json({ error: "Token mancante" });
+  }
 
   try {
     const response = await axios.post(
@@ -88,6 +92,7 @@ app.get('/list', async (req, res) => {
     res.status(500).json({ error: 'Errore nel recuperare la lista' });
   }
 });
+
 
 
 
