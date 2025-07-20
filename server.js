@@ -45,7 +45,7 @@ app.get('/list', async (req, res) => {
       {
         query: `
           query {
-            MediaListCollection(userId: 7399012, type: ANIME) {
+            MediaListCollection(type: ANIME) {
               lists {
                 name
                 entries {
