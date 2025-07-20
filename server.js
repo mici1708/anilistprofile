@@ -45,19 +45,18 @@ app.get('/list', async (req, res) => {
       {
         query: `
           query {
-            Viewer {
-              name
-              mediaListOptions {
-                scoreFormat
-              }
-              mediaList: mediaListCollection(type: ANIME) {
-                lists {
-                  name
-                  entries {
-                    media {
-                      id
-                      title { romaji english }
-                      coverImage { medium }
+            MediaListCollection(userId: 7399012, type: ANIME) {
+              lists {
+                name
+                entries {
+                  media {
+                    id
+                    title {
+                      romaji
+                      english
+                    }
+                    coverImage {
+                      medium
                     }
                   }
                 }
