@@ -50,14 +50,20 @@ app.get('/list', async (req, res) => {
           query {
             Viewer {
               name
-              animeList: mediaListCollection(type: ANIME) {
-                lists {
-                  name
-                  entries {
-                    media {
-                      id
-                      title { romaji english }
-                      coverImage { medium }
+              mediaListOptions {
+                scoreFormat
+              }
+              mediaLists {
+                name
+                entries {
+                  media {
+                    id
+                    title {
+                      romaji
+                      english
+                    }
+                    coverImage {
+                      medium
                     }
                   }
                 }
@@ -68,10 +74,11 @@ app.get('/list', async (req, res) => {
       },
       {
         headers: {
-          Authorization: token,  // token è già 'Bearer ...' se inviato bene dal frontend
+          Authorization: token,
         },
       }
     );
+
     console.log("Risposta AniList:", response.data);
     res.json(response.data);
   } catch(err) {
