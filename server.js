@@ -40,44 +40,46 @@ app.get('/auth/callback', async (req, res) => {
 
 app.get('/list', async (req, res) => {
   const token = req.headers.authorization;
-  if (!token) {
-    return res.status(401).json({ error: 'Token mancante' });
-  }
+  console.log("Token ricevuto:", token); // debug
 
   try {
-  const response = await axios.post(
-    'https://graphql.anilist.co',
-    {
-      query: `
-        query {
-          Viewer {
-            name
-            animeList: mediaListCollection(type: ANIME) {
-              lists {
-                name
-                entries {
-                  media {
-                    id
-                    title { romaji english }
-                    coverImage { medium }
+    const response = await axios.post(
+      'https://graphql.anilist.co',
+      {
+        query: `
+          query {
+            Viewer {
+              name
+              animeList: mediaListCollection(type: ANIME) {
+                lists {
+                  name
+                  entries {
+                    media {
+                      id
+                      title { romaji english }
+                      coverImage { medium }
+                    }
                   }
                 }
               }
             }
           }
-        }
-      `
-    },
-    {
-      headers: { Authorization: `Bearer ${token}` }
-    }
-  );
-  res.json(response.data);
+        `
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    console.log("Risposta AniList:", response.data); // debug
+    res.json(response.data);
   } catch (err) {
-    console.error('Errore fetch lista:', err.response?.data || err.message);
+    console.error("Errore fetch lista:", err.response?.data || err.message);
     res.status(500).json({ error: 'Errore nel recuperare la lista' });
   }
 });
+
 
 app.listen(3000, () => {
   console.log('✅ Server avviato su http://localhost:3000');
