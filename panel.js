@@ -27,15 +27,12 @@ if (token) {
         `;
       });
     });
+  })
+  .catch(() => {
+    result.textContent = "Errore nel recuperare la lista.";
   });
 } else {
   loginBtn.addEventListener('click', () => {
     window.location.href = `${backendURL}/auth/login`;
   });
 }
-
-document.getElementById('login').addEventListener('click', () => {
-  // Reindirizza alla pagina di login del backend
-  window.location.href = 'https://anilistprofile.onrender.com/auth/login';
-});
-
