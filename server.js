@@ -23,7 +23,7 @@ app.get('/auth/callback', async (req, res) => {
       code,
     });
     const { access_token } = response.data;
-    res.redirect(`https://your-frontend.github.io/anipanel/panel.html?token=${access_token}`);
+    res.redirect(`https://mici1708.github.io/anilistprofile/panel.html?token=${access_token}`);
   } catch (error) {
     res.status(500).send('Errore login');
   }
