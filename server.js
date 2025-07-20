@@ -29,6 +29,11 @@ app.get('/auth/callback', async (req, res) => {
   }
 });
 
+app.get('/test', (req, res) => {
+  res.send('Server funzionante!');
+});
+
+
 app.get('/list', async (req, res) => {
   const token = req.headers.authorization;
   try {
