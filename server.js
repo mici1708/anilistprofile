@@ -5,7 +5,21 @@ const cors = require('cors');
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = ['https://mici1708.github.io'];
+
+app.use(cors({
+  origin: function(origin, callback){
+    // permette richieste senza origin (es. Postman)
+    if(!origin) return callback(null, true);
+    if(allowedOrigins.indexOf(origin) === -1){
+      const msg = 'La politica CORS non permette questa origine: ' + origin;
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+}));
+
 
 app.get('/test', (req, res) => {
   res.send('Server funzionante!');
