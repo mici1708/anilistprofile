@@ -1,7 +1,7 @@
 const result = document.getElementById('result');
 const loginBtn = document.getElementById('login');
 
-const backendURL = "https://TUO-BACKEND.onrender.com";
+const backendURL = "https://anilistprofile.onrender.com";
 
 const token = new URLSearchParams(window.location.search).get("token");
 
