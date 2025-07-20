@@ -1,11 +1,11 @@
 require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
-const app = express();
 const cors = require('cors');
 
+const app = express();  // <-- qui UNA SOLA VOLTA
+
 app.use(cors());
-const app = express();
 
 app.get('/test', (req, res) => {
   res.send('Server funzionante!');
