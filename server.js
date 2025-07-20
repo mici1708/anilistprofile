@@ -48,19 +48,24 @@ app.get('/list', async (req, res) => {
           query {
             Viewer {
               name
-              mediaList(type: ANIME) {
-                media {
-                  id
-                  title {
-                    romaji
-                    english
-                  }
-                  coverImage {
-                    medium
+              mediaListCollection(type: ANIME) {
+                lists {
+                  name
+                  entries {
+                    media {
+                      id
+                      title {
+                        romaji
+                        english
+                      }
+                      coverImage {
+                        medium
+                      }
+                    }
+                    status
+                    score
                   }
                 }
-                status
-                score
               }
             }
           }
@@ -68,10 +73,12 @@ app.get('/list', async (req, res) => {
       },
       {
         headers: {
-          Authorization: token,
-        },
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       }
     );
+
     res.json(response.data);
   } catch (err) {
     console.error("Errore dettagliato Anilist:", err.response?.data || err.message);
