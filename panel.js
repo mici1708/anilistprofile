@@ -1,24 +1,27 @@
 document.addEventListener('DOMContentLoaded', () => {
   const result = document.getElementById('result');
   const loginBtn = document.getElementById('login');
-
   const backendURL = "https://anilistprofile.onrender.com";
-
   const token = new URLSearchParams(window.location.search).get("token");
 
   if (token) {
-    // Mostra messaggio di login fatto
     result.textContent = "Login fatto! Caricamento lista...";
 
-    // Dopo 2 secondi carica la lista
     setTimeout(() => {
       fetch(`${backendURL}/list`, {
         headers: {
           Authorization: token
         }
       })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Errore risposta dal server");
+        return res.json();
+      })
       .then(data => {
+        if (!data.data || !data.data.Viewer) {
+          result.textContent = "Nessun dato disponibile.";
+          return;
+        }
         const user = data.data.Viewer;
         result.innerHTML = `<h2>Lista di ${user.name}</h2>`;
         user.animeList.lists.forEach(list => {
@@ -27,24 +30,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const anime = entry.media;
             result.innerHTML += `
               <div>
-                <img src="${anime.coverImage.medium}" alt="cover">
+                <img src="${anime.coverImage.medium}" alt="cover di ${anime.title.romaji}" />
                 ${anime.title.english || anime.title.romaji}
               </div>
             `;
           });
         });
       })
-      .catch(() => {
+      .catch(err => {
+        console.error(err);
         result.textContent = "Errore nel recuperare la lista.";
       });
     }, 2000);
+
   } else {
     loginBtn.addEventListener('click', () => {
       window.location.href = `${backendURL}/auth/login`;
     });
   }
 
-  // Listener per i messaggi postMessage da Twitch
+  // Listener per messaggi Twitch (postMessage)
   window.addEventListener('message', (event) => {
     const allowedOrigins = [
       'https://supervisor.ext-twitch.tv',
@@ -53,10 +58,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!allowedOrigins.includes(event.origin)) {
       console.warn('Messaggio da origine non riconosciuta:', event.origin);
-      return; // Ignora messaggi non autorizzati
+      return;
     }
 
-    // Qui puoi gestire il messaggio ricevuto
     console.log('Messaggio Twitch ricevuto:', event.data);
+    // Qui puoi aggiungere la gestione specifica dei messaggi Twitch
   });
 });
