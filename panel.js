@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       fetch(`${backendURL}/list`, {
         headers: {
-          Authorization: token
+          Authorization: `Bearer ${token}`   // qui aggiungi 'Bearer ' + token
         }
       })
       .then(res => {
