@@ -5,7 +5,16 @@ const app = express();
 const cors = require('cors');
 
 app.use(cors());
-app.use(express.json());
+const app = express();
+
+app.get('/test', (req, res) => {
+  res.send('Server funzionante!');
+});
+
+app.listen(3000, () => {
+  console.log('Server avviato su http://localhost:3000');
+});
+
 
 app.get('/auth/login', (req, res) => {
   const url = `https://anilist.co/api/v2/oauth/authorize?client_id=${process.env.CLIENT_ID}&response_type=code&redirect_uri=${process.env.REDIRECT_URI}`;
@@ -27,10 +36,6 @@ app.get('/auth/callback', async (req, res) => {
   } catch (error) {
     res.status(500).send('Errore login');
   }
-});
-
-app.get('/test', (req, res) => {
-  res.send('Server funzionante!');
 });
 
 
@@ -70,8 +75,4 @@ app.get('/list', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: 'Errore nel recuperare la lista' });
   }
-});
-
-app.listen(3000, () => {
-  console.log('Server avviato su http://localhost:3000');
 });
