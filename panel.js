@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const token = new URLSearchParams(window.location.search).get("token");
   console.log("Token frontend:", token);  // verifica che esista e sia corretto
 
-
   if (token) {
     result.textContent = "Login fatto! Caricamento lista...";
 
@@ -15,8 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
           Authorization: `Bearer ${token}`   // qui aggiungi 'Bearer ' + token
         }
       })
-      .then(res => {
-        if (!res.ok) throw new Error("Errore risposta dal server");
+      .then(async res => {
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`Errore risposta dal server: ${res.status} - ${errorText}`);
+        }
         return res.json();
       })
       .then(data => {
@@ -41,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       .catch(err => {
         console.error(err);
-        result.textContent = "Errore nel recuperare la lista.";
+        result.textContent = `Errore nel recuperare la lista: ${err.message}`;
       });
     }, 2000);
 
