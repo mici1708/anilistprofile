@@ -38,12 +38,7 @@ app.get('/auth/callback', async (req, res) => {
 });
 
 app.get('/list', async (req, res) => {
-  const authHeader = req.headers.authorization || '';
-  if (!authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Token mancante o malformato' });
-  }
-  const token = authHeader.substring(7); // togli "Bearer "
-
+  const token = req.headers.authorization?.split(' ')[1]; // estrai solo il token senza "Bearer"
   try {
     const response = await axios.post(
       'https://graphql.anilist.co',
@@ -55,19 +50,14 @@ app.get('/list', async (req, res) => {
               mediaListOptions {
                 scoreFormat
               }
-              mediaListCollection(type: ANIME) {
+              mediaList: mediaListCollection(type: ANIME) {
                 lists {
                   name
                   entries {
                     media {
                       id
-                      title {
-                        romaji
-                        english
-                      }
-                      coverImage {
-                        medium
-                      }
+                      title { romaji english }
+                      coverImage { medium }
                     }
                   }
                 }
@@ -79,16 +69,16 @@ app.get('/list', async (req, res) => {
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
         },
       }
     );
     res.json(response.data);
   } catch (err) {
-    console.error("Errore fetch lista:", err.response?.data || err.message);
+    console.error('Errore nel backend:', err.response?.data || err.message);
     res.status(500).json({ error: 'Errore nel recuperare la lista' });
   }
 });
+
 
 app.listen(3000, () => {
   console.log('✅ Server avviato su http://localhost:3000');
