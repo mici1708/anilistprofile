@@ -74,7 +74,7 @@ app.get('/list', async (req, res) => {
     );
     console.log("Risposta AniList:", response.data);
     res.json(response.data);
-  } catch (err) {
+  } catch(err) {
     console.error("Errore fetch lista:", err.response?.data || err.message);
     res.status(500).json({ error: 'Errore nel recuperare la lista' });
   }
