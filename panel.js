@@ -1,37 +1,35 @@
-const btn = document.getElementById('fetch-btn');
-const input = document.getElementById('anime-id');
 const result = document.getElementById('result');
+const loginBtn = document.getElementById('login');
 
-btn.addEventListener('click', () => {
-  const id = parseInt(input.value);
-  if (!id) return alert('Inserisci un ID valido');
+const backendURL = "https://TUO-BACKEND.onrender.com";
 
-  const query = `
-    query ($id: Int) {
-      Media(id: $id, type: ANIME) {
-        title { romaji english }
-        coverImage { medium }
-        description(asHtml: false)
-      }
-    }`;
+const token = new URLSearchParams(window.location.search).get("token");
 
-  fetch('https://graphql.anilist.co', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query, variables: { id } })
+if (token) {
+  fetch(`${backendURL}/list`, {
+    headers: {
+      Authorization: token
+    }
   })
   .then(res => res.json())
   .then(data => {
-    if (data.errors) {
-      result.textContent = 'Errore: ' + data.errors[0].message;
-    } else {
-      const m = data.data.Media;
-      result.innerHTML = `
-        <h3>${m.title.english || m.title.romaji}</h3>
-        <img src="${m.coverImage.medium}" alt="Copertina">
-        <p>${m.description?.substring(0, 200)}…</p>
-      `;
-    }
-  })
-  .catch(err => result.textContent = 'Errore rete');
-});
+    const user = data.data.Viewer;
+    result.innerHTML = `<h2>Lista di ${user.name}</h2>`;
+    user.animeList.lists.forEach(list => {
+      result.innerHTML += `<h3>${list.name}</h3>`;
+      list.entries.forEach(entry => {
+        const anime = entry.media;
+        result.innerHTML += `
+          <div>
+            <img src="${anime.coverImage.medium}" alt="cover">
+            ${anime.title.english || anime.title.romaji}
+          </div>
+        `;
+      });
+    });
+  });
+} else {
+  loginBtn.addEventListener('click', () => {
+    window.location.href = `${backendURL}/auth/login`;
+  });
+}
