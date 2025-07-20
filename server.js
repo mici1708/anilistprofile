@@ -28,11 +28,12 @@ app.get('/auth/callback', async (req, res) => {
     });
     const { access_token } = response.data;
     res.redirect(`https://mici1708.github.io/anilistprofile/panel.html?token=${access_token}`);
-    } catch (error) {
-      console.error("Errore login AniList:", error.response?.data || error.message);
-      res.status(500).send('Errore login');
-    }
+  } catch (error) {
+    console.error("Errore login AniList:", error.response?.data || error.message);
+    res.status(500).send('Errore login');
+  }
 });
+
 
 
 app.get('/list', async (req, res) => {
