@@ -49,25 +49,7 @@ app.get('/list', async (req, res) => {
               id
               name
             }
-            MediaListCollection(userId: 7399012, type: ANIME) {
-              lists {
-                name
-                entries {
-                  media {
-                    id
-                    title {
-                      romaji
-                      english
-                    }
-                    coverImage {
-                      medium
-                    }
-                  }
-                }
-              }
-            }
           }
-
         `
       },
       {
