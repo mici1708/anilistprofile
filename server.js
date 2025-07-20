@@ -40,12 +40,6 @@ app.get('/auth/callback', async (req, res) => {
 
 app.get('/list', async (req, res) => {
   const token = req.headers.authorization;
-  console.log("Token ricevuto:", token);
-  
-  if (!token) {
-    return res.status(401).json({ error: "Token mancante" });
-  }
-
   try {
     const response = await axios.post(
       'https://graphql.anilist.co',
@@ -53,27 +47,9 @@ app.get('/list', async (req, res) => {
         query: `
           query {
             Viewer {
-              id
               name
-              mediaLists {
-                name
-                entries {
-                  id
-                  status
-                  score
-                  media {
-                    id
-                    title {
-                      romaji
-                      english
-                    }
-                    coverImage {
-                      medium
-                    }
-                    episodes
-                    duration
-                  }
-                }
+              mediaListOptions {
+                // Puoi provare ad adattare la query
               }
             }
           }
@@ -85,17 +61,12 @@ app.get('/list', async (req, res) => {
         },
       }
     );
-    console.log("Risposta AniList:", response.data);
     res.json(response.data);
   } catch (err) {
-    console.error("Errore fetch lista:", err.response?.data || err.message);
+    console.error("Errore dettagliato Anilist:", err.response?.data || err.message);
     res.status(500).json({ error: 'Errore nel recuperare la lista' });
   }
 });
-
-
-
-
 
 app.listen(3000, () => {
   console.log('✅ Server avviato su http://localhost:3000');
