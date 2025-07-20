@@ -3,7 +3,7 @@ const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 
-const app = express();  // Solo una volta
+const app = express();
 
 app.use(cors());
 
@@ -12,12 +12,16 @@ app.get('/test', (req, res) => {
 });
 
 app.get('/auth/login', (req, res) => {
-  const url = `https://anilist.co/api/v2/oauth/authorize?client_id=${process.env.CLIENT_ID}&response_type=code&redirect_uri=${process.env.REDIRECT_URI}`;
+  const url = `https://anilist.co/api/v2/oauth/authorize?client_id=${process.env.CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(process.env.REDIRECT_URI)}`;
   res.redirect(url);
 });
 
 app.get('/auth/callback', async (req, res) => {
   const code = req.query.code;
+  if (!code) {
+    return res.status(400).send('Manca il codice di autorizzazione');
+  }
+
   try {
     const response = await axios.post('https://anilist.co/api/v2/oauth/token', {
       grant_type: 'authorization_code',
@@ -34,10 +38,12 @@ app.get('/auth/callback', async (req, res) => {
   }
 });
 
-
-
 app.get('/list', async (req, res) => {
   const token = req.headers.authorization;
+  if (!token) {
+    return res.status(401).json({ error: 'Token mancante' });
+  }
+
   try {
     const response = await axios.post(
       'https://graphql.anilist.co',
@@ -70,6 +76,7 @@ app.get('/list', async (req, res) => {
     );
     res.json(response.data);
   } catch (err) {
+    console.error('Errore fetch lista:', err.response?.data || err.message);
     res.status(500).json({ error: 'Errore nel recuperare la lista' });
   }
 });
