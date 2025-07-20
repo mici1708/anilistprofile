@@ -1,11 +1,14 @@
 window.addEventListener('message', (event) => {
-  // Controlla che l'origine del messaggio sia Twitch
-  if (event.origin !== 'https://supervisor.ext-twitch.tv' && 
-      event.origin !== 'https://extension-files.twitch.tv') {
+  const allowedOrigins = [
+    'https://supervisor.ext-twitch.tv',
+    'https://extension-files.twitch.tv'
+  ];
+
+  if (!allowedOrigins.includes(event.origin)) {
     console.warn('Messaggio da origine non riconosciuta:', event.origin);
-    return; // ignora messaggi non da Twitch
+    return;
   }
 
-  // Qui processa il messaggio
   console.log('Messaggio ricevuto:', event.data);
+  // Aggiungi qui la gestione specifica per i messaggi in settings
 });
