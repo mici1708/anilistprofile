@@ -53,7 +53,8 @@ app.get('/auth/callback', async (req, res) => {
 });
 
 app.get('/list', async (req, res) => {
-  const token = req.headers.authorization;
+  const token = req.headers.authorization?.split(' ')[1]; // estrai solo il token, senza 'Bearer'
+  console.log('Token ricevuto:', token);
   try {
     const response = await axios.post(
       'https://graphql.anilist.co',
