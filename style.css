@@ -3,12 +3,10 @@ body {
   background-color: #18181b;
   color: white;
 }
-#anime-box {
-  padding: 10px;
-  border: 1px solid #555;
-  max-width: 320px;
+img {
+  width: 50px;
+  margin-right: 10px;
 }
-#result img {
-  max-width: 100%;
-  margin-top: 10px;
+div {
+  margin: 5px 0;
 }
