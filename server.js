@@ -40,7 +40,7 @@ app.get('/auth/callback', async (req, res) => {
 
 app.get('/list', async (req, res) => {
   const token = req.headers.authorization;
-  console.log("Token ricevuto:", token); // debug
+  console.log("Token ricevuto:", token);
 
   try {
     const response = await axios.post(
@@ -68,17 +68,18 @@ app.get('/list', async (req, res) => {
       },
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: token,  // token è già 'Bearer ...' se inviato bene dal frontend
         },
       }
     );
-    console.log("Risposta AniList:", response.data); // debug
+    console.log("Risposta AniList:", response.data);
     res.json(response.data);
   } catch (err) {
     console.error("Errore fetch lista:", err.response?.data || err.message);
     res.status(500).json({ error: 'Errore nel recuperare la lista' });
   }
 });
+
 
 
 app.listen(3000, () => {
