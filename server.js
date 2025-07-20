@@ -45,7 +45,11 @@ app.get('/list', async (req, res) => {
       {
         query: `
           query {
-            MediaListCollection(type: ANIME) {
+            Viewer {
+              id
+              name
+            }
+            MediaListCollection(userId: 7399012, type: ANIME) {
               lists {
                 name
                 entries {
@@ -63,6 +67,7 @@ app.get('/list', async (req, res) => {
               }
             }
           }
+
         `
       },
       {
