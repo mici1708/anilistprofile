@@ -11,9 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       fetch(`${backendURL}/list`, {
         headers: {
-          Authorization: `Bearer ${token}`   // qui aggiungi 'Bearer ' + token
+          Authorization: token  // token puro, senza "Bearer "
         }
       })
+
       .then(async res => {
         if (!res.ok) {
           const errorText = await res.text();
