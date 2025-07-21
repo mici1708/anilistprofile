@@ -1,25 +1,31 @@
-let token = null;
-
-Twitch.ext.onAuthorized(auth => {
-  token = auth.token;
-
-  fetch('/api/get-username', {
-    headers: { Authorization: 'Bearer ' + token }
-  })
-    .then(res => res.json())
-    .then(data => {
-      if (!data.anilistUsername) throw new Error('Nessuno username trovato');
-
-      return fetch('/api/anilist/' + data.anilistUsername);
-    })
-    .then(res => res.json())
-    .then(data => {
-      const animeList = data?.data?.MediaListCollection?.lists?.flatMap(list => list.entries) || [];
-      const container = document.getElementById('animeList');
-      container.innerHTML = '<h2>Anime in visione:</h2><ul>' + animeList.map(e => `<li>${e.media.title.romaji}</li>`).join('') + '</ul>';
-    })
-    .catch(err => {
-      console.error(err);
-      document.getElementById('animeList').textContent = 'Errore durante il caricamento dei dati.';
-    });
+window.Twitch.ext.onAuthorized(async (auth) => {
+  window.Twitch.ext.configuration.onChanged(() => {
+    const config = window.Twitch.ext.configuration.broadcaster;
+    if (config && config.content) {
+      const { username } = JSON.parse(config.content);
+      fetch('https://your-server-url.com/get-anilist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username })
+      })
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById('anime-list');
+          container.innerHTML = '';
+          data.data.MediaListCollection.lists.forEach(list => {
+            const title = document.createElement('h3');
+            title.textContent = list.name;
+            container.appendChild(title);
+            list.entries.forEach(entry => {
+              const item = document.createElement('div');
+              item.innerHTML = `
+                <img src="${entry.media.coverImage.large}" width="80">
+                ${entry.media.title.romaji || entry.media.title.english}
+              `;
+              container.appendChild(item);
+            });
+          });
+        });
+    }
+  });
 });
