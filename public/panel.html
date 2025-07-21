@@ -2,73 +2,22 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <title>Anime List Viewer</title>
+  <title>Panel AniList</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 700px; margin: auto; padding: 20px; }
-    input, button { padding: 8px; font-size: 16px; }
-    img { max-height: 100px; }
-    .anime-entry { border-bottom: 1px solid #ccc; padding: 10px 0; display: flex; gap: 10px; }
-    .anime-info { flex-grow: 1; }
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: auto; padding: 20px; }
+    #animeList { margin-top: 20px; }
+    .anime-item { margin-bottom: 15px; }
   </style>
 </head>
 <body>
-  <h1>Inserisci username AniList</h1>
-  <input type="text" id="username" placeholder="Username AniList" />
-  <button id="loadBtn">Carica lista anime</button>
+  <h1>La tua Anime List AniList</h1>
+  <div>
+    <input id="usernameInput" placeholder="Inserisci username AniList" />
+    <button id="loadBtn">Carica Lista</button>
+  </div>
+  <div id="status"></div>
+  <div id="animeList"></div>
 
-  <div id="result"></div>
-
-  <script>
-    document.getElementById('loadBtn').addEventListener('click', async () => {
-      const username = document.getElementById('username').value.trim();
-      const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = '';
-
-      if (!username) {
-        alert('Inserisci un username valido');
-        return;
-      }
-
-      try {
-        const res = await fetch(`/api/anilist/${encodeURIComponent(username)}`);
-        if (!res.ok) {
-          const err = await res.json();
-          resultDiv.innerHTML = `<p style="color:red;">Errore: ${err.error || 'Impossibile trovare dati'}</p>`;
-          return;
-        }
-
-        const data = await res.json();
-
-        if (!data.lists || data.lists.length === 0) {
-          resultDiv.innerHTML = '<p>Nessuna lista trovata per questo utente.</p>';
-          return;
-        }
-
-        // Mostra la lista anime del primo gruppo (di solito "Watching", "Completed" ecc)
-        let html = '';
-        data.lists.forEach(list => {
-          html += `<h2>${list.name}</h2>`;
-          list.entries.forEach(entry => {
-            const m = entry.media;
-            html += `
-              <div class="anime-entry">
-                <img src="${m.coverImage.medium}" alt="${m.title.romaji}" />
-                <div class="anime-info">
-                  <strong>${m.title.romaji || m.title.english || m.title.native}</strong> 
-                  <br /> Episodi: ${m.episodes || '?'} | Stato: ${m.status} | Voto: ${entry.score || 'N/A'}
-                </div>
-              </div>
-            `;
-          });
-        });
-
-        resultDiv.innerHTML = html;
-
-      } catch (error) {
-        console.error('Errore:', error);
-        resultDiv.innerHTML = `<p style="color:red;">Errore server o di rete</p>`;
-      }
-    });
-  </script>
+  <script src="panel.js"></script>
 </body>
 </html>
