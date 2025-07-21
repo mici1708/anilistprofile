@@ -29,33 +29,37 @@ function showMessage(text) {
   msg.style.fontSize = '14px';
   msg.style.zIndex = '9999';
   document.body.appendChild(msg);
-
-  setTimeout(() => {
-    msg.remove();
-  }, 3000);
+  setTimeout(() => msg.remove(), 3000);
 }
 
 function showSavedUsername() {
-  if (window.Twitch && window.Twitch.ext) {
-    const config = window.Twitch.ext.configuration?.broadcaster;
-    if (config && config.content) {
-      try {
-        const { username } = JSON.parse(config.content);
-        const display = document.createElement('div');
-        display.textContent = `🗂️ Username salvato: ${username}`;
-        display.style.color = "#10b981"; // verde
-        display.style.marginTop = "1rem";
-        display.style.fontSize = "1rem";
-        document.body.appendChild(display);
-      } catch (err) {
-        console.warn("Errore nel parsing configurazione:", err);
-      }
-    } else {
-      console.log("Nessuna configurazione disponibile.");
+  const config = window.Twitch?.ext?.configuration?.broadcaster;
+  console.log("📦 Configurazione letta:", config);
+
+  if (config?.content) {
+    try {
+      const { username } = JSON.parse(config.content);
+      const display = document.createElement('div');
+      display.textContent = `🗂️ Username salvato: ${username}`;
+      display.style.color = "#10b981";
+      display.style.marginTop = "1rem";
+      display.style.fontSize = "1rem";
+      document.body.appendChild(display);
+    } catch (err) {
+      console.warn("❌ Errore nel parsing configurazione:", err);
     }
+  } else {
+    console.log("⚠️ Nessuna configurazione disponibile.");
   }
 }
 
+// ✅ Visualizza configurazione appena Twitch è pronto
 window.Twitch.ext.onAuthorized(() => {
+  showSavedUsername();
+});
+
+// ✅ In ascolto di cambiamenti futuri alla configurazione
+window.Twitch.ext.configuration.onChanged(() => {
+  console.log("🔄 Configurazione aggiornata!");
   showSavedUsername();
 });
