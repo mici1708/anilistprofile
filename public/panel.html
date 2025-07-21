@@ -1,17 +1,41 @@
 <!DOCTYPE html>
-<html lang="it">
+<html>
 <head>
   <meta charset="UTF-8" />
-  <title>Panel AniList</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 10px; }
-    #animeList ul { list-style: none; padding: 0; }
-    #animeList li { margin: 4px 0; }
-  </style>
+  <title>Panel</title>
 </head>
 <body>
-  <div id="animeList">Caricamento...</div>
-  <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
-  <script src="panel.js"></script>
+  <h1>Anime che stai guardando</h1>
+  <ul id="animeList"></ul>
+  <p id="error"></p>
+
+  <script type="module">
+    import { getUsername, fetchAniListData } from './requests.js';
+
+    const list = document.getElementById('animeList');
+    const error = document.getElementById('error');
+
+    async function init() {
+      const token = window.Twitch.ext.viewer.sessionToken || localStorage.getItem('token');
+
+      try {
+        const username = await getUsername(token);
+        const data = await fetchAniListData(username);
+
+        const entries = data?.data?.MediaListCollection?.lists?.flatMap(list => list.entries) || [];
+
+        entries.forEach(entry => {
+          const li = document.createElement('li');
+          li.textContent = entry.media.title.romaji;
+          list.appendChild(li);
+        });
+      } catch (e) {
+        error.textContent = "Errore nel caricamento dei dati.";
+        console.error(e);
+      }
+    }
+
+    init();
+  </script>
 </body>
 </html>
