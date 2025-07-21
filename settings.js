@@ -1,14 +1,17 @@
-window.addEventListener('message', (event) => {
-  const allowedOrigins = [
-    'https://supervisor.ext-twitch.tv',
-    'https://extension-files.twitch.tv'
-  ];
+let authToken = null;
 
-  if (!allowedOrigins.includes(event.origin)) {
-    console.warn('Messaggio da origine non riconosciuta:', event.origin);
+Twitch.ext.onAuthorized(auth => {
+  authToken = auth.token;
+});
+
+document.getElementById("save").addEventListener("click", () => {
+  const anilistUser = document.getElementById("anilistUser").value.trim();
+
+  if (!anilistUser) {
+    document.getElementById("status").textContent = "Inserisci un nome utente valido.";
     return;
   }
 
-  console.log('Messaggio ricevuto:', event.data);
-  // Aggiungi qui la gestione specifica per i messaggi in settings
+  Twitch.ext.configuration.set("broadcaster", "1", JSON.stringify({ anilistUser }));
+  document.getElementById("status").textContent = "Salvato con successo!";
 });
