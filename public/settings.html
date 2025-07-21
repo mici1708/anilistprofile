@@ -1,36 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Settings</title>
+  <title>Impostazioni AniList</title>
 </head>
 <body>
-  <h1>Impostazioni estensione</h1>
-  <input type="text" id="usernameInput" placeholder="Inserisci username AniList" />
-  <button id="saveBtn">Salva</button>
-  <p id="status"></p>
-
-  <script type="module">
-    import { setUsername } from './requests.js';
-
-    const input = document.getElementById('usernameInput');
-    const btn = document.getElementById('saveBtn');
-    const status = document.getElementById('status');
-
-    btn.addEventListener('click', async () => {
-      const username = input.value.trim();
-      if (!username) return;
-
-      const token = window.Twitch.ext.viewer.sessionToken || localStorage.getItem('token');
-
-      try {
-        await setUsername(username, token);
-        status.textContent = "Username salvato con successo!";
-      } catch (e) {
-        status.textContent = "Errore durante il salvataggio.";
-        console.error(e);
-      }
-    });
-  </script>
+  <input type="text" id="username" placeholder="Inserisci username AniList">
+  <button onclick="saveSettings()">Salva</button>
+  <script src="settings.js"></script>
 </body>
 </html>
