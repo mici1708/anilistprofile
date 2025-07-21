@@ -1,13 +1,19 @@
 function saveSettings() {
+  const username = document.getElementById('username').value.trim();
+
+  if (!username) {
+    showMessage("⚠️ Inserisci uno username valido.");
+    return;
+  }
+
   if (window.Twitch && window.Twitch.ext) {
-    const username = document.getElementById('username').value.trim();
     window.Twitch.ext.configuration.set('broadcaster', '1', JSON.stringify({ username }));
-    showMessage("✅ Username salvato con successo!");
+    showMessage("✅ Username salvato!");
   } else {
-    console.warn("Questa pagina non è in esecuzione nel contesto Twitch.");
-    showMessage("⚠️ Devi caricare l'estensione tramite Twitch per testare.");
+    showMessage("⚠️ Devi testare l'estensione dentro Twitch.");
   }
 }
+
 
 function showMessage(text) {
   const msg = document.createElement('div');
