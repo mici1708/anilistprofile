@@ -1,4 +1,4 @@
-const container = document.getElementById('anime-list')
+const container = document.getElementById('anime-list');
 container.innerHTML = 'Caricamento lista...';
 
 function fetchAnimeList(username) {
