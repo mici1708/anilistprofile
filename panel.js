@@ -1,7 +1,6 @@
 const container = document.getElementById('anime-list');
 container.innerHTML = 'Caricamento lista...';
 
-// 🔍 Funzione principale
 function fetchAnimeList(username) {
   if (!username) {
     container.innerHTML = '⚠️ Nessuno username disponibile.';
@@ -9,6 +8,7 @@ function fetchAnimeList(username) {
   }
 
   console.log("👤 Carico dati per:", username);
+  container.innerHTML = `⏳ Carico dati per: ${username}...`;
 
   fetch('https://anilistprofile.onrender.com/get-anilist', {
     method: 'POST',
@@ -17,9 +17,10 @@ function fetchAnimeList(username) {
   })
     .then(res => res.json())
     .then(data => {
+      console.log("📦 Risposta ricevuta:", data);
       container.innerHTML = '';
-      const lists = data?.data?.MediaListCollection?.lists;
 
+      const lists = data?.data?.MediaListCollection?.lists;
       if (!lists || lists.length === 0) {
         container.innerHTML = 'ℹ️ Nessuna lista trovata.';
         return;
@@ -47,18 +48,6 @@ function fetchAnimeList(username) {
     });
 }
 
-// 🧠 Lettura da query string
-function getUsernameFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('user');
-}
-
-// 📦 Lettura da localStorage
-function getUsernameFromStorage() {
-  return localStorage.getItem('anilistUsername');
-}
-
-// 🧠 Lettura da configurazione Twitch
 function tryReadFromTwitch() {
   const config = window.Twitch?.ext?.configuration?.broadcaster;
   console.log("📋 Config Twitch:", config);
@@ -76,29 +65,16 @@ function tryReadFromTwitch() {
   return false;
 }
 
-// 🚀 Avvio intelligente
-function start() {
-  const twitchAvailable = !!window.Twitch?.ext;
-
-  if (twitchAvailable) {
-    window.Twitch.ext.onAuthorized(tryReadFromTwitch);
-    window.Twitch.ext.configuration.onChanged(tryReadFromTwitch);
-  } else {
-    fallbackUsername();
-  }
-}
-
-
-// 🛟 Fallback alternativo
 function fallbackUsername() {
-  const urlUser = getUsernameFromURL();
+  const params = new URLSearchParams(window.location.search);
+  const urlUser = params.get("user");
   if (urlUser) {
     console.log("🔎 Username da URL:", urlUser);
     fetchAnimeList(urlUser);
     return;
   }
 
-  const storedUser = getUsernameFromStorage();
+  const storedUser = localStorage.getItem("anilistUsername");
   if (storedUser) {
     console.log("💾 Username da localStorage:", storedUser);
     fetchAnimeList(storedUser);
@@ -106,6 +82,21 @@ function fallbackUsername() {
   }
 
   container.innerHTML = '⚠️ Nessuno username configurato.';
+}
+
+function start() {
+  const twitchAvailable = !!window.Twitch?.ext;
+  if (twitchAvailable) {
+    window.Twitch.ext.onAuthorized(() => {
+      tryReadFromTwitch() || fallbackUsername();
+    });
+
+    window.Twitch.ext.configuration.onChanged(() => {
+      tryReadFromTwitch();
+    });
+  } else {
+    fallbackUsername();
+  }
 }
 
 start();
