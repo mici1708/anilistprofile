@@ -17,10 +17,9 @@ function fetchAnimeList(username) {
     .then(res => res.json())
     .then(data => {
       console.log("📦 Risposta:", data);
-
       container.innerHTML = '';
-      const lists = data?.data?.MediaListCollection?.lists;
 
+      const lists = data?.data?.MediaListCollection?.lists;
       if (!lists || lists.length === 0) {
         container.innerHTML = 'ℹ️ Nessuna lista trovata.';
         return;
@@ -49,29 +48,23 @@ function fetchAnimeList(username) {
 }
 
 window.Twitch.ext.onAuthorized(() => {
-  console.log("📋 Configurazione Twitch disponibile:", window.Twitch.ext.configuration.broadcaster);
-  const config = window.Twitch.ext.configuration?.broadcaster;
-  console.log("📋 Config Twitch:", config);
-
-  if (config && config.content) {
-    try {
-      const { username } = JSON.parse(config.content);
-      fetchAnimeList(username);
-    } catch (err) {
-      container.innerHTML = '❌ Errore nella configurazione.';
-      console.error("❌ Errore nel parsing:", err);
-    }
-  }
+  console.log("🟢 Twitch autorizzato");
 
   window.Twitch.ext.configuration.onChanged(() => {
-    const cfg = window.Twitch.ext.configuration?.broadcaster;
-    if (cfg?.content) {
+    const config = window.Twitch.ext.configuration?.broadcaster;
+    console.log("📋 Config Twitch ricevuta:", config);
+
+    if (config && config.content) {
       try {
-        const { username } = JSON.parse(cfg.content);
+        const { username } = JSON.parse(config.content);
+        console.log("👤 Username trovato:", username);
         fetchAnimeList(username);
       } catch (err) {
-        container.innerHTML = '❌ Errore nella configurazione aggiornata.';
+        console.error("❌ Errore nel parsing:", err);
+        container.innerHTML = '❌ Errore nella configurazione.';
       }
+    } else {
+      container.innerHTML = '⚠️ Nessun username configurato.';
     }
   });
 });
