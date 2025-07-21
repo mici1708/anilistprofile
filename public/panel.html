@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Panel AniList</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: auto; padding: 20px; }
+    #animeList { margin-top: 20px; }
+    .anime-item { margin-bottom: 15px; }
+    </style>
+    <!-- Includi la libreria Twitch Extension Helper -->
+    <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
+</head>
+<body>
+  <h1>La tua Anime List AniList</h1>
+  <div>
+    <input id="usernameInput" placeholder="Inserisci username AniList" />
+    <button id="loadBtn">Carica Lista</button>
+  </div>
+  <div id="status"></div>
+  <div id="animeList"></div>
+
+  <script src="panel.js"></script>
+</body>
+</html>
