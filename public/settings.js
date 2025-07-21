@@ -7,7 +7,7 @@ Twitch.ext.onAuthorized(auth => {
     const username = document.getElementById('usernameInput').value.trim();
     if (!username) return;
 
-    fetch('https://anilistprofile.onrender.com/api/set-username', {
+    fetch('/api/set-username', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
