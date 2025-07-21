@@ -44,3 +44,18 @@ button {
 button:hover {
   background-color: #772ce8;
 }
+
+.anime-entry {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: #242427;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+
+.anime-title {
+  font-size: 1rem;
+  font-weight: bold;
+}
