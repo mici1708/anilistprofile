@@ -1,19 +1,74 @@
-<script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
-<script>
-  let twitchAuthToken = null;
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Anime List Viewer</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 700px; margin: auto; padding: 20px; }
+    input, button { padding: 8px; font-size: 16px; }
+    img { max-height: 100px; }
+    .anime-entry { border-bottom: 1px solid #ccc; padding: 10px 0; display: flex; gap: 10px; }
+    .anime-info { flex-grow: 1; }
+  </style>
+</head>
+<body>
+  <h1>Inserisci username AniList</h1>
+  <input type="text" id="username" placeholder="Username AniList" />
+  <button id="loadBtn">Carica lista anime</button>
 
-Twitch.ext.onAuthorized(auth => {
-  console.log("TOKEN TWITCH:", auth.token);
+  <div id="result"></div>
 
-  fetch('https://anilistprofile.onrender.com/api/token', {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${auth.token}`
-    }
-  })
-  .then(res => res.json())
-  .then(data => console.log("Dati AniList ricevuti:", data))
-  .catch(err => console.error("Errore fetch:", err));
-});
+  <script>
+    document.getElementById('loadBtn').addEventListener('click', async () => {
+      const username = document.getElementById('username').value.trim();
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = '';
 
-</script>
+      if (!username) {
+        alert('Inserisci un username valido');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/anilist/${encodeURIComponent(username)}`);
+        if (!res.ok) {
+          const err = await res.json();
+          resultDiv.innerHTML = `<p style="color:red;">Errore: ${err.error || 'Impossibile trovare dati'}</p>`;
+          return;
+        }
+
+        const data = await res.json();
+
+        if (!data.lists || data.lists.length === 0) {
+          resultDiv.innerHTML = '<p>Nessuna lista trovata per questo utente.</p>';
+          return;
+        }
+
+        // Mostra la lista anime del primo gruppo (di solito "Watching", "Completed" ecc)
+        let html = '';
+        data.lists.forEach(list => {
+          html += `<h2>${list.name}</h2>`;
+          list.entries.forEach(entry => {
+            const m = entry.media;
+            html += `
+              <div class="anime-entry">
+                <img src="${m.coverImage.medium}" alt="${m.title.romaji}" />
+                <div class="anime-info">
+                  <strong>${m.title.romaji || m.title.english || m.title.native}</strong> 
+                  <br /> Episodi: ${m.episodes || '?'} | Stato: ${m.status} | Voto: ${entry.score || 'N/A'}
+                </div>
+              </div>
+            `;
+          });
+        });
+
+        resultDiv.innerHTML = html;
+
+      } catch (error) {
+        console.error('Errore:', error);
+        resultDiv.innerHTML = `<p style="color:red;">Errore server o di rete</p>`;
+      }
+    });
+  </script>
+</body>
+</html>
