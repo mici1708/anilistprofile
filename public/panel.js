@@ -3,7 +3,7 @@ window.Twitch.ext.onAuthorized(async (auth) => {
     const config = window.Twitch.ext.configuration.broadcaster;
     if (config && config.content) {
       const { username } = JSON.parse(config.content);
-      fetch('https://your-server-url.com/get-anilist', {
+      fetch('https://anilistprofile.onrender.com/get-anilist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username })
