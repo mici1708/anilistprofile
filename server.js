@@ -2,6 +2,8 @@ const express = require('express');
 const session = require('express-session');
 const fetch = require('node-fetch');
 const path = require('path');
+const cors = require('cors');
+
 
 const app = express();
 
@@ -42,6 +44,15 @@ app.get('/api/token', (req, res) => {
     res.status(401).json({ error: 'Not authenticated' });
   }
 });
+
+app.use(cors({
+  origin: [
+    'https://extension-files.twitch.tv',
+    'https://supervisor.ext-twitch.tv'
+  ],
+  credentials: true
+}));
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server attivo su ${PORT}`));
