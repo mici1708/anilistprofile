@@ -111,7 +111,7 @@ app.get('/auth/anilist/callback', async (req, res) => {
   }
 });
 
-app.get('/api/token', (req, res) => {
+app.get('/api/token', async (req, res) => {
   const authHeader = req.headers['authorization'];
   const twitchToken = authHeader && authHeader.split(' ')[1];
 
@@ -119,15 +119,21 @@ app.get('/api/token', (req, res) => {
     return res.status(401).json({ error: 'Nessun token Twitch inviato' });
   }
 
-  jwt.verify(twitchToken, getKey, {}, async (err, decoded) => {
-    if (err) {
-      console.error('❌ JWT Twitch non valido:', err.message);
-      return res.status(401).json({ error: 'Token Twitch non valido' });
+  try {
+    const validationRes = await fetch('https://id.twitch.tv/oauth2/validate', {
+      headers: { Authorization: `OAuth ${twitchToken}` }
+    });
+
+    if (!validationRes.ok) {
+      const errData = await validationRes.json();
+      console.error('Errore validazione token Twitch:', errData);
+      return res.status(401).json({ error: 'Token Twitch non valido', details: errData });
     }
 
-    const userId = decoded.user_id;
-    console.log(`✅ Token valido per utente Twitch ID: ${userId}`);
+    const twitchUser = await validationRes.json();
+    const userId = twitchUser.user_id;
 
+    // Recupera il token AniList dal DB in base a userId
     const token = await getAniListTokenFromDB(userId);
 
     if (!token) {
@@ -135,8 +141,13 @@ app.get('/api/token', (req, res) => {
     }
 
     res.json({ token });
-  });
+
+  } catch (error) {
+    console.error('Errore verifica token Twitch:', error);
+    res.status(500).json({ error: 'Errore nel controllo token Twitch' });
+  }
 });
+
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`✅ Server attivo su http://localhost:${PORT}`));
