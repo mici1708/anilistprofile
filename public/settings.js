@@ -1,3 +1,3 @@
 document.getElementById('loginAniList').addEventListener('click', () => {
-  window.location.href = 'https://anilistprofile.onrender.com/auth/anilist';
+  window.open('https://anilistprofile.onrender.com/auth/anilist', '_blank');
 });
