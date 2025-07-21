@@ -7,7 +7,7 @@ Twitch.ext.onAuthorized(auth => {
     const username = document.getElementById('usernameInput').value.trim();
     if (!username) return;
 
-    fetch('/api/sedt-username', {
+    fetch('/api/set-username', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
