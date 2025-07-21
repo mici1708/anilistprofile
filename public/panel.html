@@ -2,22 +2,18 @@
 <script>
   let twitchAuthToken = null;
 
-  Twitch.ext.onAuthorized((auth) => {
-    console.log('Estensione autorizzata:', auth);
-    twitchAuthToken = auth.token;
+Twitch.ext.onAuthorized(auth => {
+  console.log("TOKEN TWITCH:", auth.token);
 
-    // Chiama il tuo server per ottenere il token di AniList
-    fetch('https://anilistprofile.onrender.com/api/token', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${twitchAuthToken}`
-      }
-    })
-    .then(res => res.json())
-    .then(data => {
-      console.log("Dati AniList ricevuti:", data);
-      // Qui puoi proseguire con la richiesta a AniList
-    })
-    .catch(err => console.error("Errore fetch token:", err));
-  });
+  fetch('https://anilistprofile.onrender.com/api/token', {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${auth.token}`
+    }
+  })
+  .then(res => res.json())
+  .then(data => console.log("Dati AniList ricevuti:", data))
+  .catch(err => console.error("Errore fetch:", err));
+});
+
 </script>
