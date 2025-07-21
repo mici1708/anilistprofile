@@ -3,6 +3,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginBtn = document.getElementById('login');
   const backendURL = "https://anilistprofile.onrender.com";
 
+  // Controllo che Twitch SDK sia presente
+  if (!window.Twitch || !window.Twitch.ext) {
+    console.warn('Twitch Extension Helper Library non caricata. Assicurati di eseguire il codice dentro un\'estensione Twitch.');
+    result.textContent = "Errore: questa pagina deve essere caricata all'interno di un'estensione Twitch.";
+    return;
+  }
+
   // Variabili Twitch
   let twitchUserId = null;
   let twitchToken = null;
@@ -28,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fetch(`${backendURL}/list`, {
       headers: {
-        // Passa token Twitch al backend
         'Authorization': `Bearer ${twitchToken}`
       }
     })
@@ -74,12 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   loginBtn.addEventListener('click', () => {
-    // Qui puoi aprire la pagina di login AniList tramite backend, 
-    // e associare il token AniList all’utente Twitch lato backend
     window.open(`${backendURL}/auth/login`, '_blank');
   });
 
-  // Puoi aggiungere listener per messaggi Twitch se ti servono
   window.addEventListener('message', (event) => {
     const allowedOrigins = [
       'https://supervisor.ext-twitch.tv',
