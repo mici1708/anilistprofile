@@ -42,47 +42,35 @@ function fetchAnimeList(username) {
       });
     })
     .catch(err => {
-      console.error("❌ Errore fetch:", err);
+      console.error("❌ Errore nella chiamata:", err);
       container.innerHTML = '❌ Errore nel caricamento.';
     });
 }
 
-window.Twitch.ext.onAuthorized(() => {
-  console.log("🟢 Twitch autorizzato");
+function tryReadUsernameFromConfig() {
+  const config = window.Twitch?.ext?.configuration?.broadcaster;
+  console.log("📋 Config Twitch:", config);
 
-  // Forziamo lettura immediata
-  const config = window.Twitch.ext.configuration?.broadcaster;
-  console.log("📋 Config Twitch (forzata):", config);
-
-  if (config && config.content) {
+  if (config?.content) {
     try {
       const { username } = JSON.parse(config.content);
-      console.log("👤 Username trovato:", username);
+      console.log("✅ Username dalla configurazione:", username);
       fetchAnimeList(username);
     } catch (err) {
       console.error("❌ Errore nel parsing:", err);
       container.innerHTML = '❌ Errore nella configurazione.';
     }
+  } else {
+    container.innerHTML = '⚠️ Nessuna configurazione disponibile.';
   }
+}
 
-  // In ascolto di cambiamenti successivi
-  window.Twitch.ext.configuration.onChanged(() => {
-    console.log("🔄 Configurazione cambiata");
-    const cfg = window.Twitch.ext.configuration?.broadcaster;
-    console.log("📋 Config Twitch aggiornata:", cfg);
-
-    if (cfg && cfg.content) {
-      try {
-        const { username } = JSON.parse(cfg.content);
-        console.log("👤 Username aggiornato:", username);
-        fetchAnimeList(username);
-      } catch (err) {
-        console.error("❌ Errore nel parsing aggiornato:", err);
-        container.innerHTML = '❌ Errore nella configurazione aggiornata.';
-      }
-    } else {
-      container.innerHTML = '⚠️ Nessun username configurato.';
-    }
-  });
+window.Twitch.ext.onAuthorized(() => {
+  console.log("🟢 Twitch autorizzato");
+  tryReadUsernameFromConfig();
 });
 
+window.Twitch.ext.configuration.onChanged(() => {
+  console.log("🔄 Configurazione aggiornata");
+  tryReadUsernameFromConfig();
+});
