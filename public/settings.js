@@ -15,6 +15,28 @@ function saveSettings() {
   }
 }
 
+function showSavedUsername() {
+  if (window.Twitch && window.Twitch.ext) {
+    const config = window.Twitch.ext.configuration?.broadcaster;
+    if (config && config.content) {
+      try {
+        const { username } = JSON.parse(config.content);
+        const display = document.createElement('div');
+        display.textContent = `🗂️ Username salvato: ${username}`;
+        display.style.color = "#10b981"; // verde
+        display.style.marginTop = "1rem";
+        display.style.fontSize = "1rem";
+        document.body.appendChild(display);
+      } catch (err) {
+        console.warn("Errore nel parsing configurazione:", err);
+      }
+    } else {
+      console.log("Nessuna configurazione disponibile.");
+    }
+  }
+}
+
+
 
 function showMessage(text) {
   const msg = document.createElement('div');
