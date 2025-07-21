@@ -8,10 +8,10 @@ function saveSettings() {
 
   if (window.Twitch && window.Twitch.ext) {
     window.Twitch.ext.configuration.set('broadcaster', '1', JSON.stringify({ username }));
-    console.log("Configurazione inviata:", JSON.stringify({ username }));
+    console.log("Configurazione salvata:", username);
     showMessage("✅ Username salvato!");
   } else {
-    showMessage("⚠️ Devi testare l'estensione dentro Twitch.");
+    showMessage("⚠️ Devi aprire questa pagina dentro Twitch.");
   }
 }
 
@@ -34,32 +34,20 @@ function showMessage(text) {
 
 function showSavedUsername() {
   const config = window.Twitch?.ext?.configuration?.broadcaster;
-  console.log("📦 Configurazione letta:", config);
-
   if (config?.content) {
     try {
       const { username } = JSON.parse(config.content);
-      const display = document.createElement('div');
-      display.textContent = `🗂️ Username salvato: ${username}`;
-      display.style.color = "#10b981";
-      display.style.marginTop = "1rem";
-      display.style.fontSize = "1rem";
-      document.body.appendChild(display);
+      const label = document.createElement('div');
+      label.textContent = `🗂️ Username salvato: ${username}`;
+      label.style.marginTop = "1rem";
+      label.style.color = "#10b981";
+      document.body.appendChild(label);
     } catch (err) {
-      console.warn("❌ Errore nel parsing configurazione:", err);
+      console.warn("Errore nel parsing:", err);
     }
-  } else {
-    console.log("⚠️ Nessuna configurazione disponibile.");
   }
 }
 
-// ✅ Visualizza configurazione appena Twitch è pronto
 window.Twitch.ext.onAuthorized(() => {
-  showSavedUsername();
-});
-
-// ✅ In ascolto di cambiamenti futuri alla configurazione
-window.Twitch.ext.configuration.onChanged(() => {
-  console.log("🔄 Configurazione aggiornata!");
   showSavedUsername();
 });
