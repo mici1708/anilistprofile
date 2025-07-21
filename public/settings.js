@@ -8,6 +8,7 @@ function saveSettings() {
 
   if (window.Twitch && window.Twitch.ext) {
     window.Twitch.ext.configuration.set('broadcaster', '1', JSON.stringify({ username }));
+    console.log("Configurazione inviata:", JSON.stringify({ username }));
     showMessage("✅ Username salvato!");
   } else {
     showMessage("⚠️ Devi testare l'estensione dentro Twitch.");
