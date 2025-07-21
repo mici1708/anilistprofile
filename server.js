@@ -36,7 +36,9 @@ app.get('/auth/callback', async (req, res) => {
 });
 
 app.get('/list', async (req, res) => {
-  const token = req.headers.authorization?.split(' ')[1];
+  const rawAuth = req.headers.authorization;
+  const token = rawAuth?.startsWith("Bearer ") ? rawAuth.split(' ')[1] : rawAuth;
+
   if (!token) {
     return res.status(401).json({ error: 'Token mancante' });
   }
