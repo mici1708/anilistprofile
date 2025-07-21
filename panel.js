@@ -22,11 +22,35 @@ document.addEventListener('DOMContentLoaded', () => {
         return res.json();
       })
       .then(data => {
+        console.log("Risposta completa:", data);
+      
         if (!data.data || !data.data.Viewer) {
           result.textContent = "Nessun dato disponibile.";
           return;
         }
-
+      
+        const user = data.data.Viewer;
+        result.innerHTML = `<h2>Lista di ${user.name}</h2>`;
+      
+        // Debug: esiste MediaListCollection?
+        if (!data.data.MediaListCollection || !data.data.MediaListCollection.lists) {
+          result.innerHTML += "<p>La lista non è disponibile o vuota.</p>";
+          return;
+        }
+      
+        data.data.MediaListCollection.lists.forEach(list => {
+          result.innerHTML += `<h3>${list.name}</h3>`;
+          list.entries.forEach(entry => {
+            const anime = entry.media;
+            result.innerHTML += `
+              <div>
+                <img src="${anime.coverImage.medium}" alt="cover di ${anime.title.romaji}" />
+                ${anime.title.english || anime.title.romaji}
+              </div>
+            `;
+          });
+        });
+      })
         const user = data.data.Viewer;
         result.innerHTML = `<h2>Lista di ${user.name}</h2>`;
 
