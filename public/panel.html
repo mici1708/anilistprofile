@@ -1,11 +1,23 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>AniList Panel</title>
-</head>
-<body>
-  <div id="anilist-info">Caricamento...</div>
-  <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
-  <script src="panel.js"></script>
-</body>
-</html>
+<script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
+<script>
+  let twitchAuthToken = null;
+
+  Twitch.ext.onAuthorized((auth) => {
+    console.log('Estensione autorizzata:', auth);
+    twitchAuthToken = auth.token;
+
+    // Chiama il tuo server per ottenere il token di AniList
+    fetch('https://anilistprofile.onrender.com/api/token', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${twitchAuthToken}`
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log("Dati AniList ricevuti:", data);
+      // Qui puoi proseguire con la richiesta a AniList
+    })
+    .catch(err => console.error("Errore fetch token:", err));
+  });
+</script>
