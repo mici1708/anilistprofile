@@ -9,8 +9,7 @@ const app = express();
 const cors = require('cors');
 app.use(cors({
   origin: [
-    'https://extension-files.twitch.tv',
-    'https://supervisor.ext-twitch.tv'
+    '*'
   ],
   credentials: true
 }));
