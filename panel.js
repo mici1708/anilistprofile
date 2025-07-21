@@ -1,16 +1,40 @@
 document.addEventListener('DOMContentLoaded', () => {
-  console.log("window.Twitch:", window.Twitch);
-  console.log("window.Twitch.ext:", window.Twitch?.ext);
-
-  if (!window.Twitch || !window.Twitch.ext) {
-    console.error("Twitch Extension Helper Library NON caricata!");
-    const result = document.getElementById('result');
-    result.textContent = "Errore: libreria Twitch non caricata.";
-    return;
+  console.log("Panel.js caricato");
+  
+  if (!window.Twitch) {
+    console.error("window.Twitch NON definito!");
   } else {
-    console.log("Twitch Extension Helper Library caricata correttamente.");
+    console.log("window.Twitch è definito");
   }
   
+  if (!window.Twitch?.ext) {
+    console.error("window.Twitch.ext NON definito!");
+  } else {
+    console.log("window.Twitch.ext è definito");
+    
+    window.Twitch.ext.onAuthorized(auth => {
+      console.log("onAuthorized chiamato");
+      console.log("Auth oggetto:", auth);
+  
+      if (!auth.userId) {
+        console.warn("Utente NON loggato Twitch");
+      } else {
+        console.log("Utente Twitch ID:", auth.userId);
+        console.log("Token Twitch Extension:", auth.token);
+      }
+    });
+  
+    window.Twitch.ext.onError(err => {
+      console.error("Errore Twitch Extension:", err);
+    });
+  }
+  
+  // Eventuale gestione messaggi Twitch
+  window.addEventListener('message', (event) => {
+    console.log("Messaggio ricevuto da:", event.origin);
+    console.log("Dati messaggio:", event.data);
+  });
+    
   const result = document.getElementById('result');
   const loginBtn = document.getElementById('login');
   const backendURL = "https://anilistprofile.onrender.com";
