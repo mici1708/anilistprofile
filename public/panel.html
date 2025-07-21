@@ -1,25 +1,106 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Panel AniList</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AniList Panel</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 800px; margin: auto; padding: 20px; }
-    #animeList { margin-top: 20px; }
-    .anime-item { margin-bottom: 15px; }
-    </style>
-    <!-- Includi la libreria Twitch Extension Helper -->
-    <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #0e0e10;
+      color: #fff;
+      margin: 0;
+      padding: 1rem;
+    }
+    h1 {
+      text-align: center;
+      color: #00bfff;
+    }
+    .anime-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+    .anime-card {
+      background-color: #1f1f23;
+      border-radius: 8px;
+      padding: 0.5rem;
+      width: 150px;
+      text-align: center;
+    }
+    .anime-card img {
+      width: 100%;
+      border-radius: 4px;
+    }
+    .anime-title {
+      margin: 0.5rem 0;
+      font-size: 0.9rem;
+    }
+    .anime-score {
+      font-size: 0.8rem;
+      color: #ccc;
+    }
+  </style>
 </head>
 <body>
-  <h1>La tua Anime List AniList</h1>
-  <div>
-    <input id="usernameInput" placeholder="Inserisci username AniList" />
-    <button id="loadBtn">Carica Lista</button>
-  </div>
-  <div id="status"></div>
-  <div id="animeList"></div>
+  <h1>AniList Panel</h1>
+  <div id="anime-container" class="anime-list"></div>
 
-  <script src="panel.js"></script>
+  <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
+  <script>
+    let token = null;
+
+    Twitch.ext.onAuthorized(auth => {
+      token = auth.token;
+      fetch('/api/get-username', {
+        headers: {
+          'Authorization': 'Bearer ' + token
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) throw new Error(data.error);
+        return fetch(`/api/anilist/${encodeURIComponent(data.anilistUsername)}`);
+      })
+      .then(res => res.json())
+      .then(collection => {
+        displayAnime(collection.lists);
+      })
+      .catch(err => {
+        console.error('Errore:', err);
+        document.getElementById('anime-container').innerText = 'Errore durante il caricamento dei dati.';
+      });
+    });
+
+    function displayAnime(lists) {
+      const container = document.getElementById('anime-container');
+      container.innerHTML = ''; // Pulisce
+
+      lists.forEach(list => {
+        list.entries.forEach(entry => {
+          const media = entry.media;
+          const card = document.createElement('div');
+          card.className = 'anime-card';
+
+          const img = document.createElement('img');
+          img.src = media.coverImage.medium;
+
+          const title = document.createElement('div');
+          title.className = 'anime-title';
+          title.textContent = media.title.english || media.title.romaji;
+
+          const score = document.createElement('div');
+          score.className = 'anime-score';
+          score.textContent = `Score: ${entry.score}`;
+
+          card.appendChild(img);
+          card.appendChild(title);
+          card.appendChild(score);
+          container.appendChild(card);
+        });
+      });
+    }
+  </script>
 </body>
 </html>
