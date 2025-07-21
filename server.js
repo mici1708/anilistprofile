@@ -11,7 +11,7 @@ app.use(express.static('public'));
 const userDatabase = {}; // Twitch user_id => AniList username
 
 // ✅ Salva lo username da settings
-app.post('/api/set-usdername', (req, res) => {
+app.post('/api/set-username', (req, res) => {
   const { username } = req.body;
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
