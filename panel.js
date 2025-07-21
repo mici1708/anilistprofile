@@ -1,73 +1,75 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const result = document.getElementById('result');
-  const loginBtn = document.getElementById('login');
-  const backendURL = "https://anilistprofile.onrender.com";
-  const token = new URLSearchParams(window.location.search).get("token");
-  console.log("Token frontend:", token);
-
-  if (token) {
-    result.textContent = "Login fatto! Caricamento lista...";
-
-    setTimeout(() => {
-      fetch(`${backendURL}/list`, {
-        headers: {
-          Authorization: `Bearer ${token}`
+function fetchAniList(anilistUser) {
+  fetch('https://graphql.anilist.co', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      query: `
+        query {
+          MediaListCollection(userName: "${anilistUser}", type: ANIME) {
+            lists {
+              name
+              entries {
+                media {
+                  title {
+                    romaji
+                  }
+                }
+              }
+            }
+          }
         }
-      })
-      .then(async res => {
-        if (!res.ok) {
-          const errorText = await res.text();
-          throw new Error(`Errore risposta dal server: ${res.status} - ${errorText}`);
-        }
-        return res.json();
-      })
-      .then(data => {
-        console.log("Risposta completa:", data);
+      `
+    })
+  })
+    .then(res => res.json())
+    .then(data => {
+      const result = document.getElementById("result");
+      result.innerHTML = "";
 
-        const lists = data.MediaListCollection?.lists;
-        if (!lists || lists.length === 0) {
-          result.textContent = "Nessun dato disponibile.";
-          return;
-        }
+      if (!data.data || !data.data.MediaListCollection) {
+        result.textContent = "Nessun dato trovato.";
+        return;
+      }
 
-        result.innerHTML = `<h2>La tua lista Anime</h2>`;
-        lists.forEach(list => {
-          result.innerHTML += `<h3>${list.name}</h3>`;
-          list.entries.forEach(entry => {
-            const anime = entry.media;
-            result.innerHTML += `
-              <div style="margin-bottom: 10px;">
-                <img src="${anime.coverImage.medium}" alt="cover di ${anime.title.romaji}" />
-                ${anime.title.english || anime.title.romaji}
-              </div>
-            `;
-          });
+      data.data.MediaListCollection.lists.forEach(list => {
+        const title = document.createElement("h3");
+        title.textContent = list.name;
+        result.appendChild(title);
+
+        list.entries.forEach(entry => {
+          const item = document.createElement("div");
+          item.textContent = "• " + entry.media.title.romaji;
+          result.appendChild(item);
         });
-      })
-      .catch(err => {
-        console.error(err);
-        result.textContent = `Errore nel recuperare la lista: ${err.message}`;
       });
-    }, 2000);
-
-  } else {
-    loginBtn.addEventListener('click', () => {
-      window.location.href = `${backendURL}/auth/login`;
+    })
+    .catch(error => {
+      console.error("Errore AniList:", error);
+      document.getElementById("result").textContent = "Errore durante il caricamento.";
     });
-  }
+}
 
-  window.addEventListener('message', (event) => {
-    const allowedOrigins = [
-      'https://supervisor.ext-twitch.tv',
-      'https://extension-files.twitch.tv'
-    ];
-
-    if (!allowedOrigins.includes(event.origin)) {
-      console.warn('Messaggio da origine non riconosciuta:', event.origin);
-      return;
-    }
-
-    console.log('Messaggio Twitch ricevuto:', event.data);
-    // Qui puoi aggiungere la gestione specifica dei messaggi Twitch
+function loadFromTwitch() {
+  Twitch.ext.onAuthorized(() => {
+    Twitch.ext.configuration.onChanged(() => {
+      const config = Twitch.ext.configuration.broadcaster;
+      if (config && config.content) {
+        try {
+          const { anilistUser } = JSON.parse(config.content);
+          if (anilistUser) fetchAniList(anilistUser);
+          else document.getElementById("result").textContent = "Utente non configurato.";
+        } catch (e) {
+          console.error("Errore parsing config:", e);
+        }
+      }
+    });
   });
-});
+}
+
+// Fallback debug: browser senza Twitch
+if (typeof Twitch !== "undefined" && Twitch.ext) {
+  loadFromTwitch();
+} else {
+  console.log("DEBUG MODE: Browser senza Twitch");
+  fetchAniList("Gigguk"); // <-- Cambia con un utente reale per test locale
+}
