@@ -1,4 +1,4 @@
-export async function setUsername(username, token) 
+export async function setUsername(username, token) {
   const response = await fetch('https://anilistprofile.onrender.com/api/set-username', {
     method: 'POST',
     headers: {
