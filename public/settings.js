@@ -7,14 +7,16 @@ Twitch.ext.onAuthorized(auth => {
     const username = document.getElementById('usernameInput').value.trim();
     if (!username) return;
 
-    fetch('/api/set-username', {
+    fetch('https://anilistprofile.onrender.com/api/set-username', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
+        'Authorization': `Bearer ${token}`  // <--- questa riga è fondamentale
       },
-      body: JSON.stringify({ username })
-    })
+      body: JSON.stringify({
+        twitchUserId: userId,
+        anilistUsername: username
+      })
       .then(res => res.json())
       .then(data => {
         document.getElementById('status').textContent = 'Salvato con successo!';
