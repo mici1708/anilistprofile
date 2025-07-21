@@ -49,6 +49,7 @@ function fetchAnimeList(username) {
 }
 
 window.Twitch.ext.onAuthorized(() => {
+  console.log("📋 Configurazione Twitch disponibile:", window.Twitch.ext.configuration.broadcaster);
   const config = window.Twitch.ext.configuration?.broadcaster;
   console.log("📋 Config Twitch:", config);
 
