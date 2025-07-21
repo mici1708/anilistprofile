@@ -1,4 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
+  console.log("window.Twitch:", window.Twitch);
+  console.log("window.Twitch.ext:", window.Twitch?.ext);
+
+  if (!window.Twitch || !window.Twitch.ext) {
+    console.error("Twitch Extension Helper Library NON caricata!");
+    const result = document.getElementById('result');
+    result.textContent = "Errore: libreria Twitch non caricata.";
+    return;
+  } else {
+    console.log("Twitch Extension Helper Library caricata correttamente.");
+  }
+  
   const result = document.getElementById('result');
   const loginBtn = document.getElementById('login');
   const backendURL = "https://anilistprofile.onrender.com";
