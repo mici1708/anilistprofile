@@ -1,4 +1,4 @@
-const container = document.getElementById('anime-list');
+const container = document.getElementById('anime-list')
 container.innerHTML = 'Caricamento dati...';
 
 const username = "mici1708"; // 👉 Username fisso per test
