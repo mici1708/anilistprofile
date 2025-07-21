@@ -4,34 +4,61 @@ const fetch = require('node-fetch');
 const app = express();
 
 const PORT = process.env.PORT || 3000;
+
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
 const userDatabase = {}; // Twitch user_id => AniList username
 
+// Funzione di debug per stampare info richieste
+function logRequest(req) {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log('Headers:', req.headers);
+  if (req.method === 'POST') console.log('Body:', req.body);
+}
+
 // ✅ Salva lo username da settings
 app.post('/api/set-username', (req, res) => {
+  logRequest(req);
+
   const { username } = req.body;
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  if (!authHeader) return res.status(401).json({ error: 'Header Authorization mancante' });
 
-  if (!token) return res.status(401).json({ error: 'Token mancante' });
+  // Authorization: Bearer <token>
+  const parts = authHeader.split(' ');
+  if (parts.length !== 2 || parts[0] !== 'Bearer') {
+    return res.status(401).json({ error: 'Header Authorization malformato' });
+  }
+  const token = parts[1];
+
+  if (!username) return res.status(400).json({ error: 'Username mancante' });
 
   verifyTwitchToken(token)
     .then(user_id => {
       userDatabase[user_id] = username;
+      console.log(`Salvato username AniList: ${username} per user_id Twitch: ${user_id}`);
       res.json({ message: 'Username salvato con successo' });
     })
-    .catch(err => res.status(401).json({ error: err.message }));
+    .catch(err => {
+      console.error('Errore verifica token:', err);
+      res.status(401).json({ error: err.message });
+    });
 });
 
 // ✅ Recupera lo username per l’utente autenticato
 app.get('/api/get-username', (req, res) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  logRequest(req);
 
-  if (!token) return res.status(401).json({ error: 'Token mancante' });
+  const authHeader = req.headers['authorization'];
+  if (!authHeader) return res.status(401).json({ error: 'Header Authorization mancante' });
+
+  const parts = authHeader.split(' ');
+  if (parts.length !== 2 || parts[0] !== 'Bearer') {
+    return res.status(401).json({ error: 'Header Authorization malformato' });
+  }
+  const token = parts[1];
 
   verifyTwitchToken(token)
     .then(user_id => {
@@ -39,11 +66,16 @@ app.get('/api/get-username', (req, res) => {
       if (!username) return res.status(404).json({ error: 'Username non trovato' });
       res.json({ anilistUsername: username });
     })
-    .catch(err => res.status(401).json({ error: err.message }));
+    .catch(err => {
+      console.error('Errore verifica token:', err);
+      res.status(401).json({ error: err.message });
+    });
 });
 
 // ✅ Recupera dati AniList
 app.get('/api/anilist/:username', async (req, res) => {
+  logRequest(req);
+
   const username = req.params.username;
   try {
     const query = `
@@ -69,6 +101,7 @@ app.get('/api/anilist/:username', async (req, res) => {
     const data = await response.json();
     res.json(data);
   } catch (err) {
+    console.error('Errore fetch AniList:', err);
     res.status(500).json({ error: 'Errore nel recupero dati AniList' });
   }
 });
@@ -78,6 +111,7 @@ function verifyTwitchToken(token) {
   const isTesting = true; // Imposta a false per produzione
 
   if (isTesting) {
+    console.log('Token Twitch simulato accettato:', token);
     return Promise.resolve('123456'); // user_id simulato
   }
 
