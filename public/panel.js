@@ -1,5 +1,5 @@
 const container = document.getElementById('anime-list');
-ontainer.innerHTML = 'Caricamento lista...';
+container.innerHTML = 'Caricamento lista...';
 
 function fetchAnimeList(username) {
   if (!username) {
