@@ -6,6 +6,44 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// In cima al file
+const userDatabase = {}; // { twitchUserId: anilistUsername }
+
+// Endpoint per salvare username (usato da settings.js)
+app.post('/api/save-username', (req, res) => {
+  const { twitchUserId, anilistUsername } = req.body;
+  if (!twitchUserId || !anilistUsername) {
+    return res.status(400).json({ error: 'Dati mancanti' });
+  }
+  userDatabase[twitchUserId] = anilistUsername;
+  console.log(`Salvato username AniList per Twitch user ${twitchUserId}: ${anilistUsername}`);
+  res.json({ success: true });
+});
+
+// Endpoint per recuperare username (usato da panel.js)
+app.get('/api/get-username', (req, res) => {
+  const authHeader = req.headers['authorization'];
+  const twitchToken = authHeader && authHeader.split(' ')[1];
+  if (!twitchToken) {
+    return res.status(401).json({ error: 'Nessun token Twitch' });
+  }
+  // verifica token Twitch
+  fetch('https://id.twitch.tv/oauth2/validate', {
+    headers: { Authorization: `OAuth ${twitchToken}` }
+  }).then(r => {
+    if (!r.ok) throw new Error('Token Twitch non valido');
+    return r.json();
+  }).then(data => {
+    const twitchUserId = data.user_id;
+    const anilistUsername = userDatabase[twitchUserId];
+    if (!anilistUsername) return res.status(404).json({ error: 'Username AniList non trovato' });
+    res.json({ anilistUsername });
+  }).catch(err => {
+    res.status(401).json({ error: err.message });
+  });
+});
+
+
 const app = express();
 
 app.use(express.json());
