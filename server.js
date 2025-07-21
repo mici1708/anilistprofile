@@ -6,6 +6,15 @@ const cors = require('cors');
 
 
 const app = express();
+const cors = require('cors');
+app.use(cors({
+  origin: [
+    'https://extension-files.twitch.tv',
+    'https://supervisor.ext-twitch.tv'
+  ],
+  credentials: true
+}));
+
 
 app.use(session({ secret: 'segreto', resave: false, saveUninitialized: true }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -44,14 +53,6 @@ app.get('/api/token', (req, res) => {
     res.status(401).json({ error: 'Not authenticated' });
   }
 });
-
-app.use(cors({
-  origin: [
-    'https://extension-files.twitch.tv',
-    'https://supervisor.ext-twitch.tv'
-  ],
-  credentials: true
-}));
 
 
 const PORT = process.env.PORT || 3000;
