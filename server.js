@@ -55,6 +55,7 @@ app.get('/auth/anilist', (req, res) => {
 // 🔁 Callback dopo il login
 app.get('/auth/anilist/callback', async (req, res) => {
   const code = req.query.code;
+  console.log('Code ricevuto:', code);
 
   try {
     const response = await fetch('https://anilist.co/api/v2/oauth/token', {
