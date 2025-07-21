@@ -24,26 +24,19 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(data => {
         console.log("Risposta completa:", data);
 
-        if (!data.data || !data.data.Viewer) {
+        const lists = data.MediaListCollection?.lists;
+        if (!lists || lists.length === 0) {
           result.textContent = "Nessun dato disponibile.";
           return;
         }
 
-        const user = data.data.Viewer;
-        result.innerHTML = `<h2>Lista di ${user.name}</h2>`;
-
-        const collection = data.data.MediaListCollection;
-        if (!collection || !collection.lists || collection.lists.length === 0) {
-          result.innerHTML += "<p>La lista non è disponibile o vuota.</p>";
-          return;
-        }
-
-        collection.lists.forEach(list => {
+        result.innerHTML = `<h2>La tua lista Anime</h2>`;
+        lists.forEach(list => {
           result.innerHTML += `<h3>${list.name}</h3>`;
           list.entries.forEach(entry => {
             const anime = entry.media;
             result.innerHTML += `
-              <div>
+              <div style="margin-bottom: 10px;">
                 <img src="${anime.coverImage.medium}" alt="cover di ${anime.title.romaji}" />
                 ${anime.title.english || anime.title.romaji}
               </div>
