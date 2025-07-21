@@ -15,6 +15,26 @@ function saveSettings() {
   }
 }
 
+function showMessage(text) {
+  const msg = document.createElement('div');
+  msg.textContent = text;
+  msg.style.position = 'fixed';
+  msg.style.bottom = '20px';
+  msg.style.left = '50%';
+  msg.style.transform = 'translateX(-50%)';
+  msg.style.backgroundColor = '#9146FF';
+  msg.style.color = '#fff';
+  msg.style.padding = '10px 20px';
+  msg.style.borderRadius = '6px';
+  msg.style.fontSize = '14px';
+  msg.style.zIndex = '9999';
+  document.body.appendChild(msg);
+
+  setTimeout(() => {
+    msg.remove();
+  }, 3000);
+}
+
 function showSavedUsername() {
   if (window.Twitch && window.Twitch.ext) {
     const config = window.Twitch.ext.configuration?.broadcaster;
@@ -34,28 +54,6 @@ function showSavedUsername() {
       console.log("Nessuna configurazione disponibile.");
     }
   }
-}
-
-
-
-function showMessage(text) {
-  const msg = document.createElement('div');
-  msg.textContent = text;
-  msg.style.position = 'fixed';
-  msg.style.bottom = '20px';
-  msg.style.left = '50%';
-  msg.style.transform = 'translateX(-50%)';
-  msg.style.backgroundColor = '#9146FF';
-  msg.style.color = '#fff';
-  msg.style.padding = '10px 20px';
-  msg.style.borderRadius = '6px';
-  msg.style.fontSize = '14px';
-  msg.style.zIndex = '9999';
-  document.body.appendChild(msg);
-
-  setTimeout(() => {
-    msg.remove();
-  }, 3000);
 }
 
 window.Twitch.ext.onAuthorized(() => {
