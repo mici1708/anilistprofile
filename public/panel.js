@@ -1,4 +1,4 @@
-window.Twitch.ext.onAuthorized(async (auth) => 
+window.Twitch.ext.onAuthorized(async (auth) => {
   window.Twitch.ext.configuration.onChanged(() => {
     const config = window.Twitch.ext.configuration.broadcaster;
     if (config && config.content) {
