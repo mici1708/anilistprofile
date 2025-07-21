@@ -1,12 +1,9 @@
-const usernameInput = document.getElementById('usernameInput');
-const loadBtn = document.getElementById('loadBtn');
 const statusDiv = document.getElementById('status');
 const animeListDiv = document.getElementById('animeList');
 
 async function fetchAnimeList(username) {
-  statusDiv.textContent = 'Caricamento...';
+  statusDiv.textContent = 'Caricamento lista anime di ' + username + '...';
   animeListDiv.innerHTML = '';
-  console.log(`Richiesta lista anime per utente: ${username}`);
 
   const query = `
   query ($name: String) {
@@ -16,14 +13,8 @@ async function fetchAnimeList(username) {
         entries {
           media {
             id
-            title {
-              romaji
-              english
-              native
-            }
-            coverImage {
-              medium
-            }
+            title { romaji english native }
+            coverImage { medium }
             status
             episodes
           }
@@ -34,75 +25,59 @@ async function fetchAnimeList(username) {
     }
   }`;
 
-  const variables = { name: username };
-
   try {
     const response = await fetch('https://graphql.anilist.co', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ query, variables })
+      body: JSON.stringify({ query, variables: { name: username } })
     });
+    const data = await response.json();
+    if (data.errors) throw new Error(data.errors[0].message);
 
-    if (!response.ok) {
-      statusDiv.textContent = `Errore HTTP: ${response.status}`;
-      console.error('Errore HTTP:', response);
-      return;
-    }
-
-    const json = await response.json();
-    console.log('Risposta API AniList:', json);
-
-    if (json.errors) {
-      statusDiv.textContent = 'Errore API: ' + json.errors[0].message;
-      console.error('Errori API:', json.errors);
-      return;
-    }
-
-    const lists = json.data.MediaListCollection.lists;
+    const lists = data.data.MediaListCollection.lists;
     if (!lists || lists.length === 0) {
-      statusDiv.textContent = 'Nessuna lista trovata per questo username.';
-      console.warn('Lista vuota o inesistente');
+      statusDiv.textContent = 'Nessuna lista trovata per ' + username;
       return;
     }
-
-    statusDiv.textContent = `Lista caricata per ${username}`;
+    statusDiv.textContent = 'Lista caricata per ' + username;
 
     const firstList = lists[0];
     animeListDiv.innerHTML = `<h2>${firstList.name}</h2>`;
     firstList.entries.forEach(entry => {
       const media = entry.media;
-      const title = media.english || media.romaji || media.native || 'Titolo sconosciuto';
+      const title = media.english || media.romaji || media.native || 'Sconosciuto';
       animeListDiv.innerHTML += `
-        <div class="anime-item">
-          <img src="${media.coverImage.medium}" alt="${title}" style="height:80px; vertical-align:middle;"/>
+        <div>
+          <img src="${media.coverImage.medium}" alt="${title}" style="height:80px; vertical-align:middle;" />
           <strong>${title}</strong> — Episodi: ${media.episodes || '?'} — Stato: ${entry.status} — Progress: ${entry.progress}
         </div>`;
     });
-  } catch (error) {
-    statusDiv.textContent = 'Errore di rete o API: ' + error.message;
-    console.error('Errore fetch:', error);
+  } catch (e) {
+    statusDiv.textContent = 'Errore caricamento lista: ' + e.message;
   }
 }
 
-loadBtn.addEventListener('click', () => {
-  const username = usernameInput.value.trim();
-  if (!username) {
-    statusDiv.textContent = 'Inserisci un username AniList valido.';
+async function loadUsernameAndAnime() {
+  // Recupera token Twitch dall'extension helper o da qualche altro modo
+  const twitchToken = window.Twitch ? window.Twitch.ext.viewer.session.token : null;
+  if (!twitchToken) {
+    statusDiv.textContent = 'Token Twitch non disponibile';
     return;
   }
-  fetchAnimeList(username);
-});
 
-// Carica username da localStorage e avvia fetch automatico
-const savedUsername = localStorage.getItem('anilistUsername');
-if (savedUsername) {
-  usernameInput.value = savedUsername;
-  fetchAnimeList(savedUsername);
+  try {
+    const res = await fetch('/api/get-username', {
+      headers: { Authorization: 'Bearer ' + twitchToken }
+    });
+    const data = await res.json();
+    if (data.anilistUsername) {
+      fetchAnimeList(data.anilistUsername);
+    } else {
+      statusDiv.textContent = 'Nessun username AniList associato.';
+    }
+  } catch (error) {
+    statusDiv.textContent = 'Errore recupero username: ' + error.message;
+  }
 }
 
-loadBtn.addEventListener('click', () => {
-  const username = usernameInput.value.trim();
-  if (username) {
-    localStorage.setItem('anilistUsername', username);
-  }
-});
+loadUsernameAndAnime();
