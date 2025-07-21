@@ -9,17 +9,19 @@ const app = express();
 // ✅ Abilita CORS solo per le origini consentite (sviluppo + Twitch)
 app.use(cors({
   origin: [
-    'http://localhost:3000', // sviluppo locale
-    'https://anilistprofile.onrender.com', // il tuo server pubblico
-    'https://extension-files.twitch.tv' // Twitch extension runtime
+    'http://localhost:3000',
+    'https://anilistprofile.onrender.com',
+    'https://extension-files.twitch.tv'
   ],
   credentials: true
 }));
 
 // ✅ Middleware
 app.use(session({ secret: 'segreto', resave: false, saveUninitialized: true }));
-app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
+
+// ✅ Serve i file statici da /public (HTML, JS)
+app.use(express.static(path.join(__dirname, 'public')));
 
 // 🔒 Aggiungi le tue chiavi reali qui
 const CLIENT_ID = '28694';
@@ -53,12 +55,15 @@ app.get('/auth/anilist/callback', async (req, res) => {
 
     if (data.access_token) {
       req.session.token = data.access_token;
+      console.log('✅ Access token ottenuto con successo');
       res.redirect('/settings.html');
     } else {
+      console.error('❌ Token non ricevuto:', data);
       res.status(400).json({ error: 'Token non ricevuto', details: data });
     }
 
   } catch (error) {
+    console.error('❌ Errore callback:', error);
     res.status(500).json({ error: 'Errore nel callback', details: error });
   }
 });
@@ -74,4 +79,4 @@ app.get('/api/token', (req, res) => {
 
 // 🚀 Avvio server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`✅ Server attivo su ${PORT}`));
+app.listen(PORT, () => console.log(`✅ Server attivo su http://localhost:${PORT}`));
