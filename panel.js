@@ -81,32 +81,13 @@ function start() {
   const twitchAvailable = !!window.Twitch?.ext;
 
   if (twitchAvailable) {
-    window.Twitch.ext.onAuthorized(() => {
-      const config = window.Twitch?.ext?.configuration?.broadcaster;
-    
-      if (config?.content) {
-        try {
-          const { username } = JSON.parse(config.content);
-          console.log("✅ Username ricevuto:", username);
-          fetchAnimeList(username);
-        } catch (err) {
-          container.innerHTML = '❌ Errore nella configurazione.';
-          console.error("Errore nel parsing:", err);
-        }
-      } else {
-        container.innerHTML = '⚠️ Nessuno username configurato.';
-        console.warn("Configurazione Twitch non disponibile.");
-      }
-    });
-
-
-    window.Twitch.ext.configuration.onChanged(() => {
-      tryReadFromTwitch();
-    });
+    window.Twitch.ext.onAuthorized(tryReadFromTwitch);
+    window.Twitch.ext.configuration.onChanged(tryReadFromTwitch);
   } else {
     fallbackUsername();
   }
 }
+
 
 // 🛟 Fallback alternativo
 function fallbackUsername() {
