@@ -5,13 +5,20 @@ let username = '';
 
 // Funzione che recupera e mostra la lista
 function fetchAnimeList(user) {
+  console.log('▶️ Fetch Anime List per:', user);
+
   fetch('https://anilistprofile.onrender.com/get-anilist', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username: user })
   })
-    .then(res => res.json())
+    .then(res => {
+      console.log('✅ Risposta HTTP ricevuta:', res.status);
+      return res.json();
+    })
     .then(data => {
+      console.log('📦 Dati JSON ricevuti:', data);
+
       container.innerHTML = '';
 
       const lists = data?.data?.MediaListCollection?.lists;
@@ -44,31 +51,39 @@ function fetchAnimeList(user) {
 
 // Twitch event binding
 window.Twitch.ext.onAuthorized(() => {
+  console.log('🟢 Twitch autorizzato');
+
   // Se la configurazione è già disponibile
-  const config = window.Twitch.ext.configuration.broadcaster;
+  const config = window.Twitch.ext.configuration?.broadcaster;
+  console.log('📋 Config iniziale:', config);
+
   if (config && config.content) {
     try {
       const parsed = JSON.parse(config.content);
       username = parsed.username;
-      console.log('Username trovato:', username);
+      console.log('👤 Username trovato:', username);
       fetchAnimeList(username);
     } catch (err) {
-      console.error('Errore nel parsing della configurazione:', err);
+      console.error('❌ Errore nel parsing della configurazione:', err);
       container.innerHTML = '❌ Errore nella configurazione.';
     }
   }
 
   // In ascolto di cambiamenti successivi
   window.Twitch.ext.configuration.onChanged(() => {
-    const cfg = window.Twitch.ext.configuration.broadcaster;
+    console.log('🔄 Configurazione cambiata');
+
+    const cfg = window.Twitch.ext.configuration?.broadcaster;
+    console.log('📋 Nuova configurazione:', cfg);
+
     if (cfg && cfg.content) {
       try {
         const parsed = JSON.parse(cfg.content);
         username = parsed.username;
-        console.log('Username aggiornato:', username);
+        console.log('👤 Username aggiornato:', username);
         fetchAnimeList(username);
       } catch (err) {
-        console.error('Errore nel parsing aggiornato:', err);
+        console.error('❌ Errore nel parsing aggiornato:', err);
         container.innerHTML = '❌ Errore nella configurazione aggiornata.';
       }
     } else {
