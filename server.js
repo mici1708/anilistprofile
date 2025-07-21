@@ -6,8 +6,13 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// In cima al file
+const app = express();
+
+// Memoria semplice per associare twitchUserId -> anilistUsername
 const userDatabase = {}; // { twitchUserId: anilistUsername }
+
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Endpoint per salvare username (usato da settings.js)
 app.post('/api/save-username', (req, res) => {
@@ -27,7 +32,7 @@ app.get('/api/get-username', (req, res) => {
   if (!twitchToken) {
     return res.status(401).json({ error: 'Nessun token Twitch' });
   }
-  // verifica token Twitch
+
   fetch('https://id.twitch.tv/oauth2/validate', {
     headers: { Authorization: `OAuth ${twitchToken}` }
   }).then(r => {
@@ -43,12 +48,7 @@ app.get('/api/get-username', (req, res) => {
   });
 });
 
-
-const app = express();
-
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
-
+// Endpoint per ottenere lista anime da username AniList
 app.get('/api/anilist/:username', async (req, res) => {
   const username = req.params.username;
 
