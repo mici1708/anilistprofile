@@ -1,8 +1,11 @@
 "views": {
   "config": {
-    "viewer_url": "https://anilistprofile.onrender.com/settings.html"
+    "viewer_url": "https://anilistprofile.onrender.com/settings.html",
+    "height": 700
   },
   "panel": {
-    "viewer_url": "https://anilistprofile.onrender.com/panel.html"
+    "viewer_url": "https://anilistprofile.onrender.com/panel.html",
+    "height": 700,
+    "width": 1024
   }
 }
