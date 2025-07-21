@@ -1,3 +1,3 @@
 document.getElementById('loginAniList').addEventListener('click', () => {
-  window.location.href = '/auth/anilist';
+  window.top.location.href = '/auth/anilist';
 });
