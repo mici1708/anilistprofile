@@ -1,11 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <title>Impostazioni Estensione AniList</title>
+  <title>Impostazioni AniList</title>
 </head>
 <body>
-  <h1>Impostazioni Estensione AniList</h1>
-  <p>Qui puoi configurare la tua estensione.</p>
+  <h2>Impostazioni Estensione</h2>
+  <label for="anilistUser">Nome utente AniList:</label>
+  <input type="text" id="anilistUser" />
+  <button id="save">Salva</button>
+  <div id="status"></div>
+
+  <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
+  <script src="settings.js"></script>
 </body>
 </html>
