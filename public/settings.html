@@ -1,90 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Impostazioni AniList</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #18181b;
-      color: #fff;
-      padding: 2rem;
-    }
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-    }
-    input {
-      padding: 0.5rem;
-      width: 100%;
-      max-width: 300px;
-      margin-bottom: 1rem;
-    }
-    button {
-      padding: 0.5rem 1rem;
-      background-color: #00bfff;
-      border: none;
-      color: white;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-    #message {
-      margin-top: 1rem;
-    }
-  </style>
+  <title>Settings</title>
 </head>
 <body>
-  <h2>Configura il tuo profilo AniList</h2>
-  <label for="anilistUsername">Inserisci il tuo username AniList:</label>
-  <input type="text" id="anilistUsername" placeholder="es: Gigguk" />
+  <h1>Impostazioni estensione</h1>
+  <input type="text" id="usernameInput" placeholder="Inserisci username AniList" />
   <button id="saveBtn">Salva</button>
-  <div id="message"></div>
+  <p id="status"></p>
 
-  <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
-  <script>
-    let token = null;
-    let userId = null;
+  <script type="module">
+    import { setUsername } from './requests.js';
 
-    Twitch.ext.onAuthorized(auth => {
-      token = auth.token;
+    const input = document.getElementById('usernameInput');
+    const btn = document.getElementById('saveBtn');
+    const status = document.getElementById('status');
 
-      // Decodifica JWT per ottenere user_id
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      userId = payload.user_id;
-    });
+    btn.addEventListener('click', async () => {
+      const username = input.value.trim();
+      if (!username) return;
 
-    document.getElementById('saveBtn').addEventListener('click', () => {
-      const username = document.getElementById('anilistUsername').value.trim();
-      const message = document.getElementById('message');
+      const token = window.Twitch.ext.viewer.sessionToken || localStorage.getItem('token');
 
-      if (!username || !userId) {
-        message.textContent = 'Errore: assicurati di aver inserito un username valido.';
-        return;
+      try {
+        await setUsername(username, token);
+        status.textContent = "Username salvato con successo!";
+      } catch (e) {
+        status.textContent = "Errore durante il salvataggio.";
+        console.error(e);
       }
-
-      fetch('/api/set-username', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          twitchUserId: userId,
-          anilistUsername: username
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          message.textContent = 'Username salvato con successo!';
-        } else {
-          message.textContent = 'Errore nel salvataggio.';
-        }
-      })
-      .catch(() => {
-        message.textContent = 'Errore nella richiesta al server.';
-      });
     });
   </script>
 </body>
