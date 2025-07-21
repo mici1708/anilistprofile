@@ -2,11 +2,14 @@
 <html>
 <head>
   <title>Impostazioni AniList</title>
+  <link rel="stylesheet" href="style-settings.css">
   <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
 </head>
 <body>
-  <input type="text" id="username" placeholder="Inserisci username AniList">
-  <button onclick="saveSettings()">Salva</button>
+  <div class="container">
+    <input type="text" id="username" placeholder="Inserisci username AniList">
+    <button onclick="saveSettings()">Salva</button>
+  </div>
   <script src="settings.js"></script>
 </body>
 </html>
