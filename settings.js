@@ -1,4 +1,4 @@
-function saveSettings() {
+unction saveSettings() {
   const username = document.getElementById('username').value.trim();
 
   if (!username) {
