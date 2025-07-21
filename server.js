@@ -108,7 +108,7 @@ app.get('/api/anilist/:username', async (req, res) => {
 
 // ✅ Funzione per verificare (o simulare) token Twitch
 function verifyTwitchToken(token) {
-  const isTesting = true; // Imposta a false per produzione
+  const isTesting = false; // Imposta a false per produzione
 
   if (isTesting) {
     console.log('Token Twitch simulato accettato:', token);
