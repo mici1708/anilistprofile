@@ -57,3 +57,7 @@ function showMessage(text) {
     msg.remove();
   }, 3000);
 }
+
+window.Twitch.ext.onAuthorized(() => {
+  showSavedUsername();
+});
