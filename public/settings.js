@@ -1,6 +1,6 @@
 function saveSettings() {
   if (window.Twitch && window.Twitch.ext) {
-    const username = document.getElementById('username');
+    const username = document.getElementById('mici1708');
     window.Twitch.ext.configuration.set('broadcaster', '1', JSON.stringify({ username }));
     showMessage("✅ Username salvato con successo!");
   } else {
