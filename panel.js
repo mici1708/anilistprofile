@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginBtn = document.getElementById('login');
   const backendURL = "https://anilistprofile.onrender.com";
   const token = new URLSearchParams(window.location.search).get("token");
-  console.log("Token frontend:", token);  // verifica che esista e sia corretto
+  console.log("Token frontend:", token);
 
   if (token) {
     result.textContent = "Login fatto! Caricamento lista...";
@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       fetch(`${backendURL}/list`, {
         headers: {
-          Authorization: `Bearer ${token}` // ✅ CORRETTO
+          Authorization: `Bearer ${token}`
         }
       })
       .then(async res => {
@@ -23,22 +23,22 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       .then(data => {
         console.log("Risposta completa:", data);
-      
+
         if (!data.data || !data.data.Viewer) {
           result.textContent = "Nessun dato disponibile.";
           return;
         }
-      
+
         const user = data.data.Viewer;
         result.innerHTML = `<h2>Lista di ${user.name}</h2>`;
-      
-        // Debug: esiste MediaListCollection?
-        if (!data.data.MediaListCollection || !data.data.MediaListCollection.lists) {
+
+        const collection = data.data.MediaListCollection;
+        if (!collection || !collection.lists || collection.lists.length === 0) {
           result.innerHTML += "<p>La lista non è disponibile o vuota.</p>";
           return;
         }
-      
-        data.data.MediaListCollection.lists.forEach(list => {
+
+        collection.lists.forEach(list => {
           result.innerHTML += `<h3>${list.name}</h3>`;
           list.entries.forEach(entry => {
             const anime = entry.media;
@@ -50,27 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
           });
         });
-      })
-        const user = data.data.Viewer;
-        result.innerHTML = `<h2>Lista di ${user.name}</h2>`;
-
-        // se la tua query nel backend include anche MediaListCollection
-        if (data.data.MediaListCollection?.lists) {
-          data.data.MediaListCollection.lists.forEach(list => {
-            result.innerHTML += `<h3>${list.name}</h3>`;
-            list.entries.forEach(entry => {
-              const anime = entry.media;
-              result.innerHTML += `
-                <div>
-                  <img src="${anime.coverImage.medium}" alt="cover di ${anime.title.romaji}" />
-                  ${anime.title.english || anime.title.romaji}
-                </div>
-              `;
-            });
-          });
-        } else {
-          result.innerHTML += "<p>La lista non è disponibile.</p>";
-        }
       })
       .catch(err => {
         console.error(err);
@@ -84,7 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Listener per messaggi Twitch (postMessage)
   window.addEventListener('message', (event) => {
     const allowedOrigins = [
       'https://supervisor.ext-twitch.tv',
