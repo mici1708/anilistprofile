@@ -1,15 +1,20 @@
 {
-  "name": "anilist-extension",
+  "name": "anilist-twitch-extension",
   "version": "1.0.0",
-  "description": "Twitch extension with AniList login",
+  "description": "Server per integrazione AniList con Twitch Extension",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
+  "author": "Tuo Nome",
+  "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
     "express-session": "^1.17.3",
-    "node-fetch": "^2.6.7",
-    "cors": "^2.8.5"
-  }
+    "node-fetch": "^3.3.1",
+    "cors": "^2.8.5",
+    "jsonwebtoken": "^9.0.0",
+    "jwks-rsa": "^3.0.0"
+  },
+  "type": "module"
 }
