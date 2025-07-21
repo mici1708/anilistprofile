@@ -1,44 +1,43 @@
-const saveBtn = document.getElementById('saveBtn');
-const usernameInput = document.getElementById('usernameInput');
-const statusDiv = document.getElementById('status');
+let token = null;
+let userId = null;
 
-// Ottieni token Twitch (puoi usare Twitch Extension Helper o passarlo da panel)
-const twitchToken = window.Twitch ? window.Twitch.ext.viewer.session.token : null;
+Twitch.ext.onAuthorized(auth => {
+  token = auth.token;
 
-saveBtn.addEventListener('click', async () => {
-  const username = usernameInput.value.trim();
-  if (!username) {
-    statusDiv.textContent = 'Inserisci username AniList';
+  // Decodifica JWT per ottenere lo user_id
+  const payload = JSON.parse(atob(token.split('.')[1]));
+  userId = payload.user_id;
+
+  // Ora è sicuro attivare i pulsanti o eseguire azioni
+  document.getElementById('saveBtn').disabled = false;
+});
+
+document.getElementById('saveBtn').addEventListener('click', () => {
+  const username = document.getElementById('anilistUsername').value.trim();
+  const message = document.getElementById('message');
+
+  if (!username || !userId) {
+    message.textContent = 'Errore: inserisci un username valido e attendi l\'autorizzazione.';
     return;
   }
-  if (!twitchToken) {
-    statusDiv.textContent = 'Token Twitch non disponibile';
-    return;
-  }
 
-  // Ottieni userId da Twitch API validate
-  try {
-    const validateRes = await fetch('https://id.twitch.tv/oauth2/validate', {
-      headers: { Authorization: `OAuth ${twitchToken}` }
+  fetch('/api/save-username', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      twitchUserId: userId,
+      anilistUsername: username
+    })
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        message.textContent = 'Username salvato con successo!';
+      } else {
+        message.textContent = 'Errore nel salvataggio.';
+      }
+    })
+    .catch(() => {
+      message.textContent = 'Errore nella richiesta al server.';
     });
-    if (!validateRes.ok) throw new Error('Token Twitch non valido');
-
-    const validateData = await validateRes.json();
-    const twitchUserId = validateData.user_id;
-
-    // Salva al backend
-    const saveRes = await fetch('/api/save-username', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ twitchUserId, anilistUsername: username })
-    });
-    const saveData = await saveRes.json();
-    if (saveData.success) {
-      statusDiv.textContent = 'Username salvato con successo!';
-    } else {
-      statusDiv.textContent = 'Errore salvataggio username.';
-    }
-  } catch (error) {
-    statusDiv.textContent = 'Errore: ' + error.message;
-  }
 });
