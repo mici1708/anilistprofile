@@ -1,115 +1,94 @@
-import express from 'express';
-import fetch from 'node-fetch';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
+const express = require('express');
+const cors = require('cors');
+const fetch = require('node-fetch');
 const app = express();
 
-// Memoria semplice per associare twitchUserId -> anilistUsername
-const userDatabase = {}; // { twitchUserId: anilistUsername }
-
+const PORT = process.env.PORT || 3000;
+app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 
-// Endpoint per salvare username (usato da settings.js)
-app.post('/api/save-username', (req, res) => {
-  const { twitchUserId, anilistUsername } = req.body;
-  if (!twitchUserId || !anilistUsername) {
-    return res.status(400).json({ error: 'Dati mancanti' });
-  }
-  userDatabase[twitchUserId] = anilistUsername;
-  console.log(`Salvato username AniList per Twitch user ${twitchUserId}: ${anilistUsername}`);
-  res.json({ success: true });
+const userDatabase = {}; // Twitch user_id => AniList username
+
+// ✅ Salva lo username da settings
+app.post('/api/set-username', (req, res) => {
+  const { username } = req.body;
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) return res.status(401).json({ error: 'Token mancante' });
+
+  verifyTwitchToken(token)
+    .then(user_id => {
+      userDatabase[user_id] = username;
+      res.json({ message: 'Username salvato con successo' });
+    })
+    .catch(err => res.status(401).json({ error: err.message }));
 });
 
-// Endpoint per recuperare username (usato da panel.js)
+// ✅ Recupera lo username per l’utente autenticato
 app.get('/api/get-username', (req, res) => {
   const authHeader = req.headers['authorization'];
-  const twitchToken = authHeader && authHeader.split(' ')[1];
+  const token = authHeader && authHeader.split(' ')[1];
 
-  // ⚠️ In testing, bypassa la verifica reale e simula un utente Twitch
-  const isTesting = process.env.NODE_ENV === 'development' || true;
+  if (!token) return res.status(401).json({ error: 'Token mancante' });
 
-  if (isTesting) {
-    const fakeUserId = '123456'; // stesso ID che usi in settings
-    const anilistUsername = userDatabase[fakeUserId];
-    if (!anilistUsername) return res.status(404).json({ error: 'Username AniList non trovato (test)' });
-    return res.json({ anilistUsername });
-  }
-
-  // Produzione: verifica davvero il token
-  fetch('https://id.twitch.tv/oauth2/validate', {
-    headers: { Authorization: `OAuth ${twitchToken}` }
-  }).then(r => {
-    if (!r.ok) throw new Error('Token Twitch non valido');
-    return r.json();
-  }).then(data => {
-    const twitchUserId = data.user_id;
-    const anilistUsername = userDatabase[twitchUserId];
-    if (!anilistUsername) return res.status(404).json({ error: 'Username AniList non trovato' });
-    res.json({ anilistUsername });
-  }).catch(err => {
-    res.status(401).json({ error: err.message });
-  });
+  verifyTwitchToken(token)
+    .then(user_id => {
+      const username = userDatabase[user_id];
+      if (!username) return res.status(404).json({ error: 'Username non trovato' });
+      res.json({ anilistUsername: username });
+    })
+    .catch(err => res.status(401).json({ error: err.message }));
 });
 
-
-// Endpoint per ottenere lista anime da username AniList
+// ✅ Recupera dati AniList
 app.get('/api/anilist/:username', async (req, res) => {
   const username = req.params.username;
-
-  const query = `
-    query ($userName: String) {
-      MediaListCollection(userName: $userName, type: ANIME) {
-        lists {
-          name
-          entries {
-            media {
-              id
-              title {
-                romaji
-                english
-                native
+  try {
+    const query = `
+      query {
+        MediaListCollection(userName: "${username}", type: ANIME, status: CURRENT) {
+          lists {
+            name
+            entries {
+              media {
+                title { romaji }
               }
-              coverImage {
-                medium
-              }
-              episodes
-              status
             }
-            status
-            score
           }
         }
       }
-    }
-  `;
-
-  try {
+    `;
     const response = await fetch('https://graphql.anilist.co', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ query, variables: { userName: username } })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
     });
 
     const data = await response.json();
-
-    if (data.errors) {
-      return res.status(404).json({ error: 'Utente non trovato o dati non accessibili' });
-    }
-
-    res.json(data.data.MediaListCollection);
-
-  } catch (error) {
-    console.error('Errore fetching AniList:', error);
-    res.status(500).json({ error: 'Errore server' });
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Errore nel recupero dati AniList' });
   }
 });
 
-const PORT = process.env.PORT || 10000;
+// ✅ Funzione per verificare (o simulare) token Twitch
+function verifyTwitchToken(token) {
+  const isTesting = true; // Imposta a false per produzione
+
+  if (isTesting) {
+    return Promise.resolve('123456'); // user_id simulato
+  }
+
+  return fetch('https://id.twitch.tv/oauth2/validate', {
+    headers: { Authorization: `OAuth ${token}` }
+  }).then(res => {
+    if (!res.ok) throw new Error('Token Twitch non valido');
+    return res.json();
+  }).then(data => data.user_id);
+}
+
 app.listen(PORT, () => {
   console.log(`Server attivo su http://localhost:${PORT}`);
 });
