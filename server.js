@@ -93,34 +93,31 @@ app.get('/api/token', async (req, res) => {
   const twitchToken = authHeader && authHeader.split(' ')[1];
 
   if (!twitchToken) {
-    return res.status(401).json({ error: 'No Twitch token sent' });
+    return res.status(401).json({ error: 'Nessun token Twitch inviato' });
   }
 
-  try {
-    const response = await fetch(`https://id.twitch.tv/oauth2/validate`, {
-      headers: { Authorization: `OAuth ${twitchToken}` }
-    });
+  // ✅ Verifica token Twitch con endpoint ufficiale
+  const validationRes = await fetch('https://id.twitch.tv/oauth2/validate', {
+    headers: { Authorization: `OAuth ${twitchToken}` }
+  });
 
-    if (!response.ok) {
-      return res.status(401).json({ error: 'Invalid Twitch token' });
-    }
-
-    const user = await response.json();
-    const userId = user.user_id;
-
-    // Recupera il token AniList salvato in precedenza per questo userId
-    const token = await getAniListTokenFromDB(userId);
-
-    if (!token) {
-      return res.status(404).json({ error: 'Token AniList non trovato' });
-    }
-
-    res.json({ token });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Errore interno' });
+  if (!validationRes.ok) {
+    return res.status(401).json({ error: 'Token Twitch non valido' });
   }
+
+  const twitchUser = await validationRes.json();
+  const userId = twitchUser.user_id;
+
+  // 🔐 Ora cerca il token AniList associato a quell'userId
+  const token = await getAniListTokenFromDB(userId); // <-- DEVE essere implementata
+
+  if (!token) {
+    return res.status(404).json({ error: 'Token AniList non trovato' });
+  }
+
+  res.json({ token });
 });
+
 
 
 // 🚀 Avvio server
