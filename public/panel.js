@@ -4,6 +4,8 @@ container.innerHTML = 'Caricamento lista...'; // Mostriamo prima qualcosa
 window.Twitch.ext.onAuthorized(() => {
   window.Twitch.ext.configuration.onChanged(() => {
     const config = window.Twitch.ext.configuration.broadcaster;
+    console.log("Configurazione ricevuta:", config);
+
 
     if (!config || !config.content) {
       container.innerHTML = '⚠️ Nessun username AniList configurato.';
