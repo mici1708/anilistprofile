@@ -88,13 +88,40 @@ app.get('/auth/anilist/callback', async (req, res) => {
 });
 
 // 🪪 API per ottenere il token da frontend
-app.get('/api/token', (req, res) => {
-  if (req.session.token) {
-    res.json({ token: req.session.token });
-  } else {
-    res.status(401).json({ error: 'Utente non autenticato' });
+app.get('/api/token', async (req, res) => {
+  const authHeader = req.headers['authorization'];
+  const twitchToken = authHeader && authHeader.split(' ')[1];
+
+  if (!twitchToken) {
+    return res.status(401).json({ error: 'No Twitch token sent' });
+  }
+
+  try {
+    const response = await fetch(`https://id.twitch.tv/oauth2/validate`, {
+      headers: { Authorization: `OAuth ${twitchToken}` }
+    });
+
+    if (!response.ok) {
+      return res.status(401).json({ error: 'Invalid Twitch token' });
+    }
+
+    const user = await response.json();
+    const userId = user.user_id;
+
+    // Recupera il token AniList salvato in precedenza per questo userId
+    const token = await getAniListTokenFromDB(userId);
+
+    if (!token) {
+      return res.status(404).json({ error: 'Token AniList non trovato' });
+    }
+
+    res.json({ token });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Errore interno' });
   }
 });
+
 
 // 🚀 Avvio server
 const PORT = process.env.PORT || 10000;
