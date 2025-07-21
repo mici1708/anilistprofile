@@ -1,41 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Panel</title>
+  <title>AniList Panel</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Anime che stai guardando</h1>
-  <ul id="animeList"></ul>
-  <p id="error"></p>
-
-  <script type="module">
-    import { getUsername, fetchAniListData } from './requests.js';
-
-    const list = document.getElementById('animeList');
-    const error = document.getElementById('error');
-
-    async function init() {
-      const token = window.Twitch.ext.viewer.sessionToken || localStorage.getItem('token');
-
-      try {
-        const username = await getUsername(token);
-        const data = await fetchAniListData(username);
-
-        const entries = data?.data?.MediaListCollection?.lists?.flatMap(list => list.entries) || [];
-
-        entries.forEach(entry => {
-          const li = document.createElement('li');
-          li.textContent = entry.media.title.romaji;
-          list.appendChild(li);
-        });
-      } catch (e) {
-        error.textContent = "Errore nel caricamento dei dati.";
-        console.error(e);
-      }
-    }
-
-    init();
-  </script>
+  <div id="anime-list">Caricamento lista...</div>
+  <script src="panel.js"></script>
 </body>
 </html>
