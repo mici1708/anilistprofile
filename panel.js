@@ -3,21 +3,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginBtn = document.getElementById('login');
   const backendURL = "https://anilistprofile.onrender.com";
 
-  // Controllo che Twitch SDK sia presente
-  if (!window.Twitch || !window.Twitch.ext) {
-    console.warn('Twitch Extension Helper Library non caricata. Assicurati di eseguire il codice dentro un\'estensione Twitch.');
+  // Controllo che Twitch SDK sia presente PRIMA di accedere a window.Twitch.ext
+  if (typeof window.Twitch === "undefined" || typeof window.Twitch.ext === "undefined") {
+    console.warn('Twitch Extension Helper Library non caricata.');
     result.textContent = "Errore: questa pagina deve essere caricata all'interno di un'estensione Twitch.";
-    return;
+    return; // stop esecuzione
   }
 
-  // Variabili Twitch
-  let twitchUserId = null;
-  let twitchToken = null;
-
-  // Inizializza Twitch Extension SDK
+  // Ora è sicuro usare window.Twitch.ext
   window.Twitch.ext.onAuthorized(auth => {
-    twitchToken = auth.token; // Token JWT di Twitch Extension
-    twitchUserId = auth.userId;
+    const twitchToken = auth.token;
+    const twitchUserId = auth.userId;
 
     console.log("Twitch auth:", { twitchUserId, twitchToken });
 
@@ -26,16 +22,15 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Ora chiedi al backend i dati AniList legati a questo utente Twitch
-    loadAniListData();
+    loadAniListData(twitchToken);
   });
 
-  function loadAniListData() {
+  function loadAniListData(twitchToken) {
     result.textContent = "Caricamento lista...";
 
     fetch(`${backendURL}/list`, {
       headers: {
-        'Authorization': `Bearer ${twitchToken}`
+        Authorization: `Bearer ${twitchToken}`
       }
     })
     .then(async res => {
