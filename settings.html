@@ -1,10 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-  <title>Login AniList</title>
+  <meta charset="UTF-8" />
+  <title>Impostazioni AniList</title>
+  <style>
+    body, html {
+      margin: 0; padding: 0; height: 100%;
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+    }
+    iframe {
+      width: 100%;
+      height: 700px;
+      border: none;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      display: block;
+      margin: 20px auto;
+      max-width: 900px;
+      border-radius: 8px;
+    }
+    h1 {
+      text-align: center;
+      margin-top: 30px;
+    }
+  </style>
 </head>
 <body>
-  <button id="loginAniList">Login con AniList</button>
-  <script src="settings.js"></script>
+
+  <h1>Impostazioni AniList</h1>
+
+  <!-- iframe con altezza 700px -->
+  <iframe src="https://anilistprofile.onrender.com/settings.html" title="Impostazioni AniList"></iframe>
+
 </body>
 </html>
