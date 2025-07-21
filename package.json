@@ -1,6 +1,7 @@
 {
   "name": "anilist-extension",
   "version": "1.0.0",
+  "description": "Twitch extension with AniList login",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
