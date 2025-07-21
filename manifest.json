@@ -4,7 +4,7 @@
     "height": 700
   },
   "panel": {
-    "viewer_url": "https://anilistprofile.onrender.com/panel.html",
+    "viewer_url": "https://anilistprofile.onrender.com/debug.html",
     "height": 700,
     "width": 1024
   }
