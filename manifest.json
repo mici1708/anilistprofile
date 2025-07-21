@@ -1,0 +1,8 @@
+"views": {
+  "config": {
+    "viewer_url": "https://anilistprofile.onrender.com/settings.html"
+  },
+  "panel": {
+    "viewer_url": "https://anilistprofile.onrender.com/panel.html"
+  }
+}
