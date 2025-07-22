@@ -1,4 +1,9 @@
 const container = document.getElementById('anime-list');
+if (!container) {
+  console.error("❌ Elemento #anime-list non trovato nel DOM.");
+  return;
+}
+
 
 function fetchAnimeList(username) {
   if (!username) {
