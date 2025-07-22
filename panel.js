@@ -73,7 +73,7 @@ window.onload = () => {
   }
 
   window.Twitch.ext.onAuthorized(() => {
-    tryReadFromTwitch();
+    console.log("🟢 Twitch autorizzato");
   });
 
   window.Twitch.ext.configuration.onChanged(() => {
