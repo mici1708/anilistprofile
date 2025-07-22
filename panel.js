@@ -55,20 +55,20 @@ window.onload = () => {
   }
 
   function tryReadFromTwitch() {
-    const config = window.Twitch.ext.configuration?.broadcaster;
-    console.log("📋 Config Twitch:", config);
-
-    if (config?.content) {
-      try {
-        const { username } = JSON.parse(config.content);
-        console.log("✅ Username Twitch:", username);
-        fetchAnimeList(username);
-      } catch (err) {
-        container.innerHTML = '❌ Errore nel parsing configurazione.';
-        console.error("Errore:", err);
+    window.Twitch.ext.configuration.onChanged(() => {
+      const config = window.Twitch.ext.configuration?.broadcaster;
+      console.log("📋 Config Twitch:", config);
+    
+      if (config?.content) {
+        try {
+          const parsed = JSON.parse(config.content);
+          console.log("✅ Username ricevuto:", parsed.username);
+        } catch (err) {
+          console.error("❌ Errore nel parsing:", err);
+        }
+      } else {
+        console.warn("⚠️ Configurazione assente.");
       }
-    } else {
-      container.innerHTML = '⚠️ Nessuna configurazione disponibile.';
     }
   }
 
