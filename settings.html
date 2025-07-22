@@ -4,12 +4,15 @@
   <title>Configurazione AniList</title>
   <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
   <script src="settings.js"></script>
-  <link rel="stylesheet" href="style-settings.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <h2>🔧 Configura il tuo username AniList</h2>
   <input type="text" id="username" placeholder="es. mici1708">
-  <button onclick="saveSettings()">Salva</button>
-  <div id="saved-username"></div>
+  <button onclick="saveSettings()">💾 Salva</button>
+  <button onclick="resetSettings()">🧹 Reset configurazione</button>
+
+  <div id="saved-username" style="margin-top: 1rem;"></div>
+  <pre id="raw-config" style="margin-top: 1rem; background: #eee; padding: 10px;"></pre>
 </body>
 </html>
