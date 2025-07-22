@@ -31,6 +31,7 @@ function showSavedUsername() {
     try {
       const { username } = JSON.parse(config.content);
       document.getElementById('saved-username').textContent = `🗂️ Username salvato: ${username}`;
+      console.log("✅ Configurazione letta:", username);
     } catch (err) {
       console.error("❌ Errore nel parsing:", err);
     }
