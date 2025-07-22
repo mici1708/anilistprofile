@@ -55,20 +55,18 @@ window.onload = () => {
   }
 
   function tryReadFromTwitch() {
-    window.Twitch.ext.configuration.onChanged(() => {
-      const config = window.Twitch.ext.configuration?.broadcaster;
-      console.log("📋 Config Twitch:", config);
-    
-      if (config?.content) {
-        try {
-          const parsed = JSON.parse(config.content);
-          console.log("✅ Username ricevuto:", parsed.username);
-        } catch (err) {
-          console.error("❌ Errore nel parsing:", err);
-        }
-      } else {
-        console.warn("⚠️ Configurazione assente.");
+    const config = window.Twitch.ext.configuration?.broadcaster;
+    console.log("📋 Config Twitch:", config);
+  
+    if (config?.content) {
+      try {
+        const parsed = JSON.parse(config.content);
+        console.log("✅ Username ricevuto:", parsed.username);
+      } catch (err) {
+        console.error("❌ Errore nel parsing:", err);
       }
+    } else {
+      console.warn("⚠️ Configurazione assente.");
     }
   }
 
