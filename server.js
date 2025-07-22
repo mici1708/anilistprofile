@@ -6,6 +6,22 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static('.')); // Serve i file frontend dal root
 
+app.post('/save-username', (req, res) => {
+  const authHeader = req.headers.authorization;
+  const { username, userId } = req.body;
+
+  console.log("🔐 Richiesta ricevuta:");
+  console.log("Authorization:", authHeader);
+  console.log("Username:", username);
+  console.log("User ID:", userId);
+
+  // Qui puoi verificare il token con Twitch se vuoi
+  // oppure salvare direttamente in un database
+
+  res.json({ success: true, message: "Username ricevuto e salvato." });
+});
+
+
 app.post('/get-anilist', async (req, res) => {
   const { username } = req.body;
 
