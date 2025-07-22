@@ -1,11 +1,30 @@
-"views": {
-  "config": {
-    "viewer_url": "https://anilistprofile.onrender.com/settings.html",
-    "height": 700
+{
+  "manifest_version": "1",
+  "type": "panel",
+  "name": "AniList Profile Viewer",
+  "description": "Mostra la lista anime di un utente AniList nel pannello Twitch.",
+  "author_name": "Michele",
+  "version": "1.0",
+  "homepage": "https://anilistprofile.onrender.com",
+  "support_email": "tuo@email.it",
+  "permissions": [
+    "configuration"
+  ],
+  "views": {
+    "panel": {
+      "viewer_url": "https://anilistprofile.onrender.com/panel.html",
+      "height": 400,
+      "width": 1024
+    },
+    "config": {
+      "viewer_url": "https://anilistprofile.onrender.com/settings.html",
+      "height": 700
+    }
   },
-  "panel": {
-    "viewer_url": "https://anilistprofile.onrender.com/debug.html",
-    "height": 700,
-    "width": 1024
-  }
+  "whitelisted_panel_urls": [
+    "https://anilistprofile.onrender.com/panel.html"
+  ],
+  "whitelisted_config_urls": [
+    "https://anilistprofile.onrender.com/settings.html"
+  ]
 }
