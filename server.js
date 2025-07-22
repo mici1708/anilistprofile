@@ -27,11 +27,22 @@ app.use(express.static(path.join(__dirname, 'public')));
 let storedUsername = '';
 
 app.post('/save-username', (req, res) => {
-  const { username, userId } = req.body;
-  console.log(`💾 [Node] Username ricevuto: ${username} da userId: ${userId}`);
-  storedUsername = username;
-  res.json({ success: true });
+  try {
+    const { username, userId } = req.body;
+
+    if (!username || !userId) {
+      console.warn("⚠️ [Node] Dati mancanti:", req.body);
+      return res.status(400).json({ error: "Missing username or userId" });
+    }
+
+    console.log(`💾 [Node] Username ricevuto: ${username} da userId: ${userId}`);
+    res.json({ success: true, message: "Username salvato correttamente" });
+  } catch (err) {
+    console.error("❌ [Node] Errore interno:", err);
+    res.status(500).json({ error: "Errore interno del server" });
+  }
 });
+
 
 // ✅ Restituisce lista anime dello streamer
 app.get('/get-anilist', async (req, res) => {
