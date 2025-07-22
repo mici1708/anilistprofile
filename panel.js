@@ -5,6 +5,8 @@ window.onload = () => {
     return;
   }
 
+  container.innerHTML = '✅ DOM pronto. Nessun errore.';
+
   function fetchAnimeList(username) {
     if (!username) {
       container.innerHTML = '⚠️ Nessuno username disponibile.';
