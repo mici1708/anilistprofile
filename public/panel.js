@@ -7,6 +7,7 @@ function waitForTwitchSDK(callback, retries = 20) {
     setTimeout(() => waitForTwitchSDK(callback, retries - 1), 250);
   } else {
     console.error("❌ [Browser] Twitch SDK non disponibile dopo vari tentativi");
+    document.getElementById('animeList').textContent = 'Twitch SDK non disponibile';
   }
 }
 
