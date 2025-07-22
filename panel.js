@@ -5,7 +5,33 @@ window.onload = () => {
     return;
   }
 
-  container.innerHTML = '✅ DOM pronto. Nessun errore.';
+  let token = '';
+
+  const twitch = window.Twitch.ext;
+
+  twitch.onAuthorized((auth) => {
+    token = auth.token;
+    console.log("🟢 Twitch autorizzato. Token ricevuto.");
+  });
+
+  twitch.configuration.onChanged(() => {
+    const config = twitch.configuration?.broadcaster;
+    console.log("📋 Config Twitch:", config);
+
+    if (config?.content) {
+      try {
+        const { username } = JSON.parse(config.content);
+        console.log("✅ Username Twitch:", username);
+        fetchAnimeList(username);
+      } catch (err) {
+        container.innerHTML = '❌ Errore nel parsing configurazione.';
+        console.error("❌ Errore nel parsing:", err);
+      }
+    } else {
+      container.innerHTML = '⚠️ Nessuna configurazione disponibile.';
+      console.warn("⚠️ Configurazione assente.");
+    }
+  });
 
   function fetchAnimeList(username) {
     if (!username) {
@@ -18,7 +44,10 @@ window.onload = () => {
 
     fetch('https://anilistprofile.onrender.com/get-anilist', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token // ✅ Autenticazione Twitch
+      },
       body: JSON.stringify({ username })
     })
       .then(res => res.json())
@@ -50,32 +79,7 @@ window.onload = () => {
       })
       .catch(err => {
         container.innerHTML = '❌ Errore nella chiamata.';
-        console.error("Errore:", err);
+        console.error("❌ Errore nella fetch:", err);
       });
   }
-
-  function tryReadFromTwitch() {
-    const config = window.Twitch.ext.configuration?.broadcaster;
-    console.log("📋 Config Twitch:", config);
-  
-    if (config?.content) {
-      try {
-        const parsed = JSON.parse(config.content);
-        console.log("✅ Username ricevuto:", parsed.username);
-      } catch (err) {
-        console.error("❌ Errore nel parsing:", err);
-      }
-    } else {
-      console.warn("⚠️ Configurazione assente.");
-    }
-  }
-
-  window.Twitch.ext.onAuthorized(() => {
-    console.log("🟢 Twitch autorizzato");
-    tryReadFromTwitch();
-  });
-
-  window.Twitch.ext.configuration.onChanged(() => {
-    //tryReadFromTwitch();
-  });
 };
