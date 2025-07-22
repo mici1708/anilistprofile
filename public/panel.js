@@ -42,7 +42,7 @@ window.onload = () => {
     container.innerHTML = `⏳ Carico dati per: ${username}...`;
     console.log("👤 Carico dati per:", username);
 
-    fetch('https://anilist-extension.vercel.app/api/get-anilist', {
+    fetch('https://anilistprofile.vercel.app/api/get-anilist', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

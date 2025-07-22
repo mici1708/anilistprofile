@@ -33,7 +33,7 @@ function saveSettings() {
   showMessage("✅ Username salvato su Twitch!");
 
   // ✅ Invia anche al tuo server Node.js
-	fetch('https://anilist-extension.vercel.app/api/save-username', {
+	fetch('https://anilistprofile.vercel.app/api/save-username', {
 	  method: 'POST',
 	  headers: {
 		'Content-Type': 'application/json',
