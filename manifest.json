@@ -1,0 +1,22 @@
+{
+  "name": "AniList Profile Viewer",
+  "author_name": "mici1708",
+  "version": "0.0.1",
+  "description": "Visualizza la lista anime dello streamer da AniList",
+  "state": "testing",
+  "views": {
+    "panel": {
+      "viewer_url": "https://anilistprofile.onrender.com/panel.html",
+      "height": 600
+    },
+    "config": {
+      "viewer_url": "https://anilistprofile.onrender.com/settings.html"
+    }
+  },
+  "permissions": {
+    "config": true
+  },
+  "whitelisted_urls": [
+    "https://anilistprofile.onrender.com"
+  ]
+}
