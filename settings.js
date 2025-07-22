@@ -1,18 +1,10 @@
 function saveSettings() {
   const username = document.getElementById('username').value.trim();
+  if (!username) return showMessage("⚠️ Inserisci uno username valido.");
 
-  if (!username) {
-    showMessage("⚠️ Inserisci uno username valido.");
-    return;
-  }
-
-  if (window.Twitch && window.Twitch.ext) {
-    window.Twitch.ext.configuration.set('broadcaster', '1', JSON.stringify({ username }));
-    console.log("Configurazione salvata:", username);
-    showMessage("✅ Username salvato!");
-  } else {
-    showMessage("⚠️ Devi aprire questa pagina dentro Twitch.");
-  }
+  window.Twitch.ext.configuration.set('broadcaster', '1', JSON.stringify({ username }));
+  console.log("💾 Configurazione salvata:", username);
+  showMessage("✅ Username salvato!");
 }
 
 function showMessage(text) {
@@ -33,21 +25,23 @@ function showMessage(text) {
 }
 
 function showSavedUsername() {
-  const config = window.Twitch?.ext?.configuration?.broadcaster;
+  const config = window.Twitch.ext.configuration?.broadcaster;
   if (config?.content) {
     try {
       const { username } = JSON.parse(config.content);
-      const label = document.createElement('div');
-      label.textContent = `🗂️ Username salvato: ${username}`;
-      label.style.marginTop = "1rem";
-      label.style.color = "#10b981";
-      document.body.appendChild(label);
+      document.getElementById('saved-username').textContent = `🗂️ Username salvato: ${username}`;
     } catch (err) {
-      console.warn("Errore nel parsing:", err);
+      console.error("❌ Errore nel parsing:", err);
     }
+  } else {
+    console.warn("⚠️ Nessuna configurazione disponibile.");
   }
 }
 
 window.Twitch.ext.onAuthorized(() => {
+  showSavedUsername();
+});
+
+window.Twitch.ext.configuration.onChanged(() => {
   showSavedUsername();
 });
