@@ -8,6 +8,14 @@ function saveSettings() {
   showMessage("✅ Username salvato!");
 }
 
+function resetSettings() {
+  window.Twitch.ext.configuration.set('broadcaster', '1', "");
+  console.log("🧹 Configurazione resettata.");
+  showMessage("🧹 Configurazione cancellata.");
+  document.getElementById('saved-username').textContent = "";
+  document.getElementById('raw-config').textContent = "";
+}
+
 function showMessage(text) {
   const msg = document.createElement('div');
   msg.textContent = text;
@@ -30,6 +38,8 @@ function showSavedUsername() {
   console.log("📋 Config Twitch:", config);
 
   if (config?.content) {
+    document.getElementById('raw-config').textContent = config.content;
+
     try {
       const { username } = JSON.parse(config.content);
       document.getElementById('saved-username').textContent = `🗂️ Username salvato: ${username}`;
@@ -41,13 +51,12 @@ function showSavedUsername() {
   } else {
     console.warn("⚠️ Nessuna configurazione disponibile.");
     showMessage("⚠️ Nessuna configurazione disponibile.");
+    document.getElementById('raw-config').textContent = "(vuoto)";
   }
 }
 
-
 window.Twitch.ext.onAuthorized(() => {
   console.log("🟢 Twitch autorizzato");
-  // Non leggere la configurazione qui
 });
 
 window.Twitch.ext.configuration.onChanged(() => {
