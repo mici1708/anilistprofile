@@ -1,85 +1,33 @@
-window.onload = () => {
-  const container = document.getElementById('anime-list');
-  if (!container) {
-    console.error("❌ Elemento #anime-list non trovato nel DOM.");
-    return;
-  }
+window.Twitch.ext.onAuthorized(auth => {
+  console.log("🔐 [Browser] Viewer authorized:", auth);
 
-  let token = '';
+  fetch('https://anilistprofile.onrender.com/get-anilist')
+    .then(res => res.json())
+    .then(({ data }) => {
+      console.log("📦 [Browser] Dati ricevuti:", data);
+      const container = document.getElementById('animeList');
+      container.innerHTML = '';
 
-  const twitch = window.Twitch.ext;
-
-  twitch.onAuthorized((auth) => {
-    token = auth.token;
-    console.log("🟢 Twitch autorizzato. Token ricevuto.");
-  });
-
-  twitch.configuration.onChanged(() => {
-    const config = twitch.configuration?.broadcaster;
-    console.log("📋 Config Twitch:", config);
-
-    if (config?.content) {
-      try {
-        const { username } = JSON.parse(config.content);
-        console.log("✅ Username Twitch:", username);
-        fetchAnimeList(username);
-      } catch (err) {
-        container.innerHTML = '❌ Errore nel parsing configurazione.';
-        console.error("❌ Errore nel parsing:", err);
+      if (!data || !data.MediaListCollection) {
+        container.textContent = 'No data found.';
+        return;
       }
-    } else {
-      container.innerHTML = '⚠️ Nessuna configurazione disponibile.';
-      console.warn("⚠️ Configurazione assente.");
-    }
-  });
 
-  function fetchAnimeList(username) {
-    if (!username) {
-      container.innerHTML = '⚠️ Nessuno username disponibile.';
-      return;
-    }
+      data.MediaListCollection.lists.forEach(list => {
+        list.entries.forEach(entry => {
+          const media = entry.media;
+          const title = media.title.english || media.title.romaji;
+          const img = media.coverImage.large;
 
-    container.innerHTML = `⏳ Carico dati per: ${username}...`;
-    console.log("👤 Carico dati per:", username);
-
-    fetch('https://anilistprofile.vercel.app/api/get-anilist', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token // ✅ Autenticazione Twitch
-      },
-      body: JSON.stringify({ username })
-    })
-      .then(res => res.json())
-      .then(data => {
-        console.log("📦 Risposta ricevuta:", data);
-        container.innerHTML = '';
-
-        const lists = data?.data?.MediaListCollection?.lists;
-        if (!lists || lists.length === 0) {
-          container.innerHTML = 'ℹ️ Nessuna lista trovata.';
-          return;
-        }
-
-        lists.forEach(list => {
-          const title = document.createElement('h3');
-          title.textContent = list.name;
-          container.appendChild(title);
-
-          list.entries.forEach(entry => {
-            const item = document.createElement('div');
-            item.className = 'anime-entry';
-            item.innerHTML = `
-              <img src="${entry.media.coverImage.large}" width="80" />
-              <span class="anime-title">${entry.media.title.romaji || entry.media.title.english}</span>
-            `;
-            container.appendChild(item);
-          });
+          const div = document.createElement('div');
+          div.className = 'anime';
+          div.innerHTML = `<img src="${img}" alt="${title}"><strong>${title}</strong>`;
+          container.appendChild(div);
         });
-      })
-      .catch(err => {
-        container.innerHTML = '❌ Errore nella chiamata.';
-        console.error("❌ Errore nella fetch:", err);
       });
-  }
-};
+    })
+    .catch(err => {
+      console.error("❌ [Browser] Errore nel caricamento:", err);
+      document.getElementById('animeList').textContent = 'Failed to load anime list';
+    });
+});

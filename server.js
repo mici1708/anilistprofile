@@ -1,12 +1,12 @@
 const express = require('express');
-const fetch = require('node-fetch');
 const cors = require('cors');
+const fetch = require('node-fetch');
 const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// ✅ CORS dinamico per Twitch Extensions
+// ✅ CORS per Twitch Extensions
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || origin.endsWith('.ext-twitch.tv')) {
@@ -21,30 +21,22 @@ app.use(cors({
 }));
 
 app.use(express.json());
-
-// ✅ Serve i file statici (frontend Twitch)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ✅ Salva username Twitch
+// ✅ Salva username dello streamer
+let storedUsername = '';
+
 app.post('/save-username', (req, res) => {
-  const authHeader = req.headers.authorization;
   const { username, userId } = req.body;
-
-  console.log("🔐 Richiesta ricevuta:");
-  console.log("Authorization:", authHeader);
-  console.log("Username:", username);
-  console.log("User ID:", userId);
-
-  res.json({ success: true, message: "Username ricevuto e salvato." });
+  console.log(`💾 [Node] Username ricevuto: ${username} da userId: ${userId}`);
+  storedUsername = username;
+  res.json({ success: true });
 });
 
-// ✅ Ottieni lista anime da AniList
-app.post('/get-anilist', async (req, res) => {
-  const { username } = req.body;
-
-  if (!username) {
-    return res.status(400).json({ error: "Username mancante" });
-  }
+// ✅ Restituisce lista anime dello streamer
+app.get('/get-anilist', async (req, res) => {
+  console.log(`📡 [Node] Richiesta lista anime per: ${storedUsername}`);
+  if (!storedUsername) return res.status(400).json({ error: "Username non configurato" });
 
   const query = `
     query ($name: String) {
@@ -71,18 +63,18 @@ app.post('/get-anilist', async (req, res) => {
     const response = await fetch('https://graphql.anilist.co', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query, variables: { name: username } })
+      body: JSON.stringify({ query, variables: { name: storedUsername } })
     });
 
     const data = await response.json();
+    console.log(`📦 [Node] Risposta AniList ricevuta per ${storedUsername}`);
     res.json({ data });
   } catch (err) {
-    console.error("❌ Errore nella chiamata a AniList:", err);
+    console.error('❌ [Node] Errore nella chiamata a AniList:', err);
     res.status(500).json({ error: "Errore nel server" });
   }
 });
 
-// ✅ Avvio server
 app.listen(PORT, () => {
-  console.log(`🚀 Server avviato su http://localhost:${PORT}`);
+  console.log(`🚀 [Node] Server avviato su http://localhost:${PORT}`);
 });
