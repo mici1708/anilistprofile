@@ -10,7 +10,9 @@ twitch.onAuthorized((auth) => {
 });
 
 twitch.configuration.onChanged(() => {
-  showSavedUsername();
+  setTimeout(() => {
+    showSavedUsername();
+  }, 500);
 });
 
 function saveSettings() {
@@ -22,10 +24,6 @@ function saveSettings() {
   // ✅ Salva su Twitch Configuration Service
   twitch.configuration.set('broadcaster', '1', payload);
   
-  // Aspetta 500ms prima di leggere
-  setTimeout(() => {
-    showSavedUsername();
-  }, 500);
   console.log("💾 Configurazione Twitch salvata:", username);
   showMessage("✅ Username salvato su Twitch!");
 
