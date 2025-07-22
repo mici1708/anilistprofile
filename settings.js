@@ -2,7 +2,8 @@ function saveSettings() {
   const username = document.getElementById('username').value.trim();
   if (!username) return showMessage("⚠️ Inserisci uno username valido.");
 
-  window.Twitch.ext.configuration.set('broadcaster', '1', JSON.stringify({ username }));
+  const payload = JSON.stringify({ username });
+  window.Twitch.ext.configuration.set('broadcaster', '1', payload);
   console.log("💾 Configurazione salvata:", username);
   showMessage("✅ Username salvato!");
 }
