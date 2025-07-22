@@ -1,5 +1,15 @@
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
+  // ✅ Gestione preflight OPTIONS
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', 'https://anilistprofile.vercel.app'); // o '*'
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    return res.status(200).end();
+  }
+
+  // ✅ Header CORS per la risposta normale
+  res.setHeader('Access-Control-Allow-Origin', 'https://anilistprofile.vercel.app');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   const authHeader = req.headers.authorization;
   const { username, userId } = req.body;
