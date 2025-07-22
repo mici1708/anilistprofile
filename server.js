@@ -6,12 +6,26 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// ✅ CORS per Twitch Extensions
+// ✅ CORS flessibile per Twitch Extensions
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || origin.endsWith('.ext-twitch.tv')) {
+    const allowedOrigins = [
+      undefined,
+      null,
+      '',
+      'https://localhost.twitch.tv',
+      'https://supervisor.ext-twitch.tv',
+      'https://extension-files.twitch.tv'
+    ];
+
+    if (
+      !origin ||
+      origin.endsWith('.ext-twitch.tv') ||
+      allowedOrigins.includes(origin)
+    ) {
       callback(null, true);
     } else {
+      console.warn(`🚫 [Node] Origin non consentito: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -36,13 +50,13 @@ app.post('/save-username', (req, res) => {
     }
 
     console.log(`💾 [Node] Username ricevuto: ${username} da userId: ${userId}`);
+    storedUsername = username;
     res.json({ success: true, message: "Username salvato correttamente" });
   } catch (err) {
     console.error("❌ [Node] Errore interno:", err);
     res.status(500).json({ error: "Errore interno del server" });
   }
 });
-
 
 // ✅ Restituisce lista anime dello streamer
 app.get('/get-anilist', async (req, res) => {
