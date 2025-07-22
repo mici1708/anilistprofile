@@ -57,10 +57,9 @@ function showSavedUsername() {
 
 window.Twitch.ext.onAuthorized(() => {
   console.log("🟢 Twitch autorizzato");
-  showSavedUsername();
 });
 
 window.Twitch.ext.configuration.onChanged(() => {
   console.log("🔄 Configurazione aggiornata");
-  //showSavedUsername();
+  showSavedUsername();
 });
