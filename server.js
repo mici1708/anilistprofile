@@ -6,10 +6,10 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// ✅ CORS flessibile per Twitch Extensions
+// ✅ CORS flessibile per Twitch Hosted Test
 app.use(cors({
   origin: (origin, callback) => {
-    const allowedOrigins = [
+    const allowed = [
       undefined,
       null,
       '',
@@ -17,15 +17,11 @@ app.use(cors({
       'https://supervisor.ext-twitch.tv',
       'https://extension-files.twitch.tv'
     ];
-
-    if (
-      !origin ||
-      origin.endsWith('.ext-twitch.tv') ||
-      allowedOrigins.includes(origin)
-    ) {
+    if (!origin || origin.endsWith('.ext-twitch.tv') || allowed.includes(origin)) {
+      console.log(`✅ [Node] Origin consentito: ${origin}`);
       callback(null, true);
     } else {
-      console.warn(`🚫 [Node] Origin non consentito: ${origin}`);
+      console.warn(`🚫 [Node] Origin bloccato: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -58,7 +54,7 @@ app.post('/save-username', (req, res) => {
   }
 });
 
-// ✅ Restituisce lista anime dello streamer
+// ✅ Restituisce lista anime da AniList
 app.get('/get-anilist', async (req, res) => {
   console.log(`📡 [Node] Richiesta lista anime per: ${storedUsername}`);
   if (!storedUsername) return res.status(400).json({ error: "Username non configurato" });
@@ -96,7 +92,7 @@ app.get('/get-anilist', async (req, res) => {
     res.json({ data });
   } catch (err) {
     console.error('❌ [Node] Errore nella chiamata a AniList:', err);
-    res.status(500).json({ error: "Errore nel server" });
+    res.status(500).json({ error: "Errore nel server AniList" });
   }
 });
 
