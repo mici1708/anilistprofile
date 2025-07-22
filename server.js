@@ -13,6 +13,7 @@ app.use(cors({
       undefined,
       null,
       '',
+      'https://anilistprofile.onrender.com',
       'https://localhost.twitch.tv',
       'https://supervisor.ext-twitch.tv',
       'https://extension-files.twitch.tv'
