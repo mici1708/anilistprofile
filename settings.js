@@ -27,18 +27,23 @@ function showMessage(text) {
 
 function showSavedUsername() {
   const config = window.Twitch.ext.configuration?.broadcaster;
+  console.log("📋 Config Twitch:", config);
+
   if (config?.content) {
     try {
       const { username } = JSON.parse(config.content);
       document.getElementById('saved-username').textContent = `🗂️ Username salvato: ${username}`;
-      console.log("✅ Configurazione letta:", username);
+      showMessage(`✅ Configurazione letta: ${username}`);
     } catch (err) {
       console.error("❌ Errore nel parsing:", err);
+      showMessage("❌ Errore nel parsing configurazione.");
     }
   } else {
     console.warn("⚠️ Nessuna configurazione disponibile.");
+    showMessage("⚠️ Nessuna configurazione disponibile.");
   }
 }
+
 
 window.Twitch.ext.onAuthorized(() => {
   console.log("🟢 Twitch autorizzato");
