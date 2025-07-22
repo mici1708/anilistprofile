@@ -1,4 +1,4 @@
-let token = '';
+let token = ''
 let userId = '';
 
 function waitForTwitchSDK(callback, retries = 20) {
